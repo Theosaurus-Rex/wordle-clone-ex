@@ -1,6 +1,6 @@
 defmodule GameTest do
   use ExUnit.Case
-  doctest Game
+
 
   test "a new function should return a new instance of game" do
     assert Game.new() == %Game{}
