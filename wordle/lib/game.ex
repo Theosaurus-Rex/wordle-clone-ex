@@ -21,9 +21,7 @@ defmodule Game do
           guesses: list(word_guess_result()),
         }
 
-  def new do
-    %Game{}
-  end
+  def new, do: %Game{}
 
   def set_secret(%Game{dictionary: dictionary} = game) do
     %Game{game | secret_word: Enum.random(dictionary)}
