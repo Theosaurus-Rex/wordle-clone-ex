@@ -52,6 +52,14 @@ defmodule Guess do
   @doc """
     Takes in a tuple containing 2 chars - one from the guess and one from the secret word, as well as the whole secret word.
     Compares the guess letter to the secret letter and returns its match status (correct, incorrect, partial) and the guess letter as a tuple.
+
+    ## Examples
+
+      iex> check_letter('d', 'c', 'cat')
+      {:incorrect, "d"}
+
+      iex> check_letter('o', 'o', 'frog')
+      {:correct, "o"}
   """
   @spec check_letter(char, char, charlist) ::
           {:correct, binary} | {:incorrect, binary} | {:partial, binary}
