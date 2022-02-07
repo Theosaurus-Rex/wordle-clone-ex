@@ -17,7 +17,6 @@ defmodule Guess do
           secret_word: word(),
           guesses: list(word_guess_result()),
         }
-
   @doc """
     Takes the player's guess and the secret word, and compares each of their characters by pairing them up.
     Returns a list of tuples stating the guess status (correct, incorrect, partial) paired with the letter that status represents.
@@ -28,20 +27,26 @@ defmodule Guess do
       iex> Guess.guess("rat", "car")
       [partial: "r", correct: "a", incorrect: "t"]
   """
+
   def guess(player_guess, secret_word) do
-    secret_letters = String.to_charlist(secret_word)
+    cond do
+      String.length(player_guess) < String.length(secret_word) -> {:error, :guess_too_short}
+      String.length(player_guess) > String.length(secret_word) -> {:error, :guess_too_long}
+      String.length(player_guess) == String.length(secret_word) ->
+        secret_letters = String.to_charlist(secret_word)
 
-    {result, _} =
-      player_guess
-      |> String.to_charlist()
-      |> Enum.zip(secret_letters)
-      |> Enum.reduce({[], secret_letters}, fn {guess_letter, secret_letter},
-                                                    {result, secret_letters} ->
-        letter_result = check_letter(guess_letter, secret_letter, secret_letters)
-        {[letter_result | result], secret_letters -- [guess_letter]}
-      end)
+        {result, _} =
+          player_guess
+          |> String.to_charlist()
+          |> Enum.zip(secret_letters)
+          |> Enum.reduce({[], secret_letters}, fn {guess_letter, secret_letter},
+                                                        {result, secret_letters} ->
+            letter_result = check_letter(guess_letter, secret_letter, secret_letters)
+            {[letter_result | result], secret_letters -- [guess_letter]}
+          end)
 
-    Enum.reverse(result)
+        Enum.reverse(result)
+    end
   end
 
   @doc """
