@@ -1,0 +1,43 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# wordle_ex Notebook
+
+## Introduction
+
+wordle_ex is an implementation of the Wordle game in Elixir, developed using TDD(Test Driven Development).
+
+This notebook can be run in [Livebook](https://livebook.dev) and provides a live access to the wordle_ex code.
+
+## The Guess Module
+
+The Guess module provides the `guess` function for checking a player guess against a secret word. It returns a `word_guess_result` showing the success or otherwise of the guess.
+
+```elixir
+Guess.guess("abc", "def")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[incorrect: "a", incorrect: "b", incorrect: "c"]
+```
+
+```elixir
+Guess.guess("def", "efd")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[partial: "d", partial: "e", partial: "f"]
+```
+
+```elixir
+Guess.guess("abc", "abc")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[correct: "a", correct: "b", correct: "c"]
+```
