@@ -21,6 +21,38 @@ defmodule GameTest do
    game = Enum.reduce(1..6, game, fn _, acc ->
       Game.add_guess(acc, [correct: "d", incorrect: "o", partial: "m"])
    end)
-   assert Game.game_over(game) == "You reached the end of the game"
+   assert Game.game_over(game) == "GAME OVER!"
+  end
+
+  test "check if there are turns remaining to keep running the game" do
+    game = Game.new
+    game = Enum.reduce(1..5, game, fn _, acc ->
+      Game.add_guess(acc, [correct: "d", incorrect: "o", partial: "m"])
+   end)
+   assert Game.game_over(game) == "Keep playing"
+  end
+
+  test "game ends when player guesses the secret word" do
+    game = Game.new
+    game = Game.add_guess(game, [correct: "d", correct: "o", correct: "m"])
+    assert Game.win_game(game) == "YOU WON!"
+  end
+
+  test "the player guessed incorrect letter" do
+    game = Game.new
+    game = Game.add_guess(game, [incorrect: "o"])
+    assert Game.win_game(game) == Game.game_over(game)
+  end
+
+  test "the player guessed partial letter" do
+    game = Game.new
+    game = Game.add_guess(game, [partial: "o"])
+    assert Game.win_game(game) == Game.game_over(game)
+  end
+
+  test "the player guessed partial and incorrect letters" do
+    game = Game.new
+    game = Game.add_guess(game, [partial: "o", incorrect: "a"])
+    assert Game.win_game(game) == Game.game_over(game)
   end
 end

@@ -89,8 +89,19 @@ defmodule Game do
 
   def game_over(%Game{guesses: guesses, max_turns: max_turns} = game) do
     cond do
-      length(game.guesses) == game.max_turns -> "You reached the end of the game"
+      length(game.guesses) < game.max_turns -> "Keep playing"
+      length(game.guesses) == game.max_turns -> "GAME OVER!"
     end
   end
 
+  def win_game(%Game{guesses: guesses} = game) do
+    [head | tail] = Enum.reverse(game.guesses)
+    last_guess = head
+    has_incorrect = Keyword.has_key?(last_guess, :incorrect)
+    has_partial = Keyword.has_key?(last_guess, :partial)
+    cond do
+      has_incorrect || has_partial -> game_over(game)
+      !has_incorrect && !has_partial -> "YOU WON!"
+    end
+  end
 end
