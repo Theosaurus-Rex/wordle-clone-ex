@@ -6,7 +6,7 @@
 
 wordle_ex is an implementation of the Wordle game in Elixir, developed using TDD(Test Driven Development).
 
-This notebook can be run in [Livebook](https://livebook.dev) and provides a live access to the wordle_ex code.
+This notebook can be run in [Livebook](https://livebook.dev) and provides a live access to the wordle_ex code. Instructions for connecting this notebook to the project can be found in this [blog post](https://fly.io/blog/livebook-for-app-documentation/).
 
 ## The Guess Module
 
