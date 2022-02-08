@@ -29,7 +29,7 @@ defmodule Guess do
       [partial: "r", correct: "a", incorrect: "t"]
   """
 
-  def guess(game, player_guess, secret_word) do
+  def guess(player_guess, secret_word) do
     cond do
       String.length(player_guess) < String.length(secret_word) -> {:error, :guess_too_short}
       String.length(player_guess) > String.length(secret_word) -> {:error, :guess_too_long}
@@ -46,14 +46,11 @@ defmodule Guess do
             {[letter_result | result], secret_letters -- [guess_letter]}
           end)
 
-        Game.add_guess(game, Enum.reverse(result))
+        Enum.reverse(result)
     end
   end
 
-  def get_player_guess(game, secret_word) do
-    player_guess = String.trim(IO.gets("Enter your guess:\n"))
-    guess(game, player_guess, secret_word)
-  end
+
 
   @doc """
     Takes in a tuple containing 2 chars - one from the guess and one from the secret word, as well as the whole secret word.

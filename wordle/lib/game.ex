@@ -1,3 +1,5 @@
+alias Guess
+
 defmodule Game do
   @moduledoc """
     The Game module handles the state of the Wordle game. This includes keeping track of the dictionary, the number of turns allowed, the turns previously taken by the player, and the secret word for any instance of the game.
@@ -12,6 +14,8 @@ defmodule Game do
   @type guess_result :: :correct | :incorrect | :partial
   @type letter_guess_result :: {guess_result, binary}
   @type word_guess_result :: list(letter_guess_result)
+
+  @type turn_result :: :win | :lose | :continue
 
   @type word :: binary
   @type guess :: binary
@@ -61,6 +65,11 @@ defmodule Game do
     %Game{game | secret_word: Enum.random(dictionary)}
   end
 
+  def get_player_guess(game) do
+    player_guess = String.trim(IO.gets("Enter your guess:\n"))
+    Game.add_guess(game, Guess.guess(player_guess, game.secret_word))
+  end
+
   @doc """
     When a player guess is passed in, the add_guess function appends that guess to the list of guesses stored in the game state.
 
@@ -85,9 +94,10 @@ defmodule Game do
   """
   def add_guess(%Game{guesses: guesses} = game, player_guess) do
     %Game{game | guesses: guesses ++ [player_guess]}
+    |> win_game()
   end
 
-  def game_over(%Game{guesses: guesses, max_turns: max_turns} = game) do
+  def game_over(%Game{guesses: guesses, max_turns: max_turns, secret_word: secret_word} = game) do
     cond do
       length(game.guesses) < game.max_turns -> "Keep playing"
       length(game.guesses) == game.max_turns -> "GAME OVER!"
