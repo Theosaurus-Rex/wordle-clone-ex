@@ -9,7 +9,8 @@ defmodule Game do
   defstruct dictionary: @dictionary,
             max_turns: 6,
             secret_word: "",
-            guesses: []
+            guesses: [],
+            turn_state: :continue
 
   @type guess_result :: :correct | :incorrect | :partial
   @type letter_guess_result :: {guess_result, binary}
@@ -61,20 +62,25 @@ defmodule Game do
         secret_word: "phone"
       }
   """
-  def set_secret(%Game{dictionary: dictionary} = game) do
-    %Game{game | secret_word: Enum.random(dictionary)}
+  def set_secret(game, secret) do
+    %Game{game | secret_word: secret}
   end
 
   @doc """
-    Asks the player for their guess and takes their input via the keyboard. Then, it calls the guess method on the player's input and add's the guess to the list of guesses stored in the current game's state.
+    Asks the player for their guess and takes their input via the keyboard. Then, it calls the guess method on the player's input and make's the guess to the list of guesses stored in the current game's state.
   """
-  def get_player_guess(game) do
-    player_guess = String.trim(IO.gets("Enter your guess:\n"))
-    Game.add_guess(game, Guess.guess(player_guess, game.secret_word))
+  def get_player_guess() do
+    String.trim(IO.gets("Enter your guess:\n"))
+  end
+
+  def make_guess(game, player_guess) do
+    guess_result = Guess.guess(player_guess, game.secret_word)
+    %Game{game | guesses: game.guesses ++ [guess_result]}
+    |> turn_result()
   end
 
   @doc """
-    When a player guess is passed in, the add_guess function appends that guess to the list of guesses stored in the game state.
+    When a player guess is passed in, the make_guess function appends that guess to the list of guesses stored in the game state.
 
     ## Examples
 
@@ -87,7 +93,7 @@ defmodule Game do
       }
       iex> player_guess = guess("dog", "for")
       incorrect: "d", correct: "o", incorrect: "g"]
-      iex> add_guess(new_game, player_guess)
+      iex> make_guess(new_game, player_guess)
       %Game{
         dictionary: ["words", "games", "phone", "mouse"],
         guesses: [[incorrect: "d", correct: "o", incorrect: "g"]],
@@ -95,33 +101,22 @@ defmodule Game do
         secret_word: ""
       }
   """
-  def add_guess(%Game{guesses: guesses} = game, player_guess) do
-    %Game{game | guesses: guesses ++ [player_guess]}
-    |> win_game()
-  end
 
-  @doc """
-    Takes a current game state as the argument and checks if the user has any turns remaining by comparing the number of guesses made so far to the number of maximum turns.
-  """
-  def game_over(%Game{guesses: _guesses, max_turns: _max_turns, secret_word: _secret_word} = game) do
+
+  def turn_result(%Game{guesses: _guesses} = game) do
     cond do
-      length(game.guesses) < game.max_turns -> "Keep playing"
-      length(game.guesses) == game.max_turns -> "GAME OVER!"
+      correct_guess(game) -> %Game{game | turn_state: :win}
+      check_loss(game) -> %Game{game | turn_state: :lose}
+      true -> %Game{game | turn_state: :continue}
     end
   end
 
-  @doc """
-    Takes the most recent guess submitted by the player and assesses whether or not they have guessed the secret word, i.e. whether or not all of the keys in their guess response have returned as "correct".
-    If any of the keys are equal or :incorrect or :partial, it runs the game_over function to check if the player has any turns remaining.
-  """
-  def win_game(%Game{guesses: _guesses} = game) do
-    [head | _tail] = Enum.reverse(game.guesses)
-    last_guess = head
-    has_incorrect = Keyword.has_key?(last_guess, :incorrect)
-    has_partial = Keyword.has_key?(last_guess, :partial)
-    cond do
-      has_incorrect || has_partial -> game_over(game)
-      !has_incorrect && !has_partial -> "YOU WON!"
-    end
+  def correct_guess(game) do
+    [last_guess| _tail] = Enum.reverse(game.guesses)
+    Enum.all?(last_guess, fn {result, _letter} -> result == :correct end)
+  end
+
+  def check_loss(game) do
+    length(game.guesses) == game.max_turns
   end
 end

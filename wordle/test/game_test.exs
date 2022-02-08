@@ -7,54 +7,112 @@ defmodule GameTest do
   end
 
   test "a function sets secret word from dictionary" do
-    game = Game.new |> Game.set_secret()
+    game = Game.new
+    game = Game.set_secret(game, Enum.random(game.dictionary))
     assert Enum.member?(game.dictionary, game.secret_word)
   end
 
   test "the player guess is added to guesses list" do
-    game = Game.new |> Game.add_guess([correct: "d", correct: "o", correct: "g"])
-    assert Enum.member?(game.guesses, [correct: "d", correct: "o", correct: "g"])
+    game = Game.new
+    game = Game.set_secret(game, "cat")
+    game = Game.make_guess(game, "dog")
+    assert Enum.member?(game.guesses, [incorrect: "d", incorrect: "o", incorrect: "g"])
   end
 
-  test "displays game over message if maximum number of terns is reached" do
+  test "displays game over message if maximum number of turns is reached" do
    game = Game.new
+   game = Game.set_secret(game, "cat")
    game = Enum.reduce(1..6, game, fn _, acc ->
-      Game.add_guess(acc, [correct: "d", incorrect: "o", partial: "m"])
+      Game.make_guess(acc, "dog")
    end)
-   assert Game.game_over(game) == "GAME OVER!"
+   assert game.turn_state == :lose
   end
 
   test "check if there are turns remaining to keep running the game" do
     game = Game.new
+    game = Game.set_secret(game, "cat")
     game = Enum.reduce(1..5, game, fn _, acc ->
-      Game.add_guess(acc, [correct: "d", incorrect: "o", partial: "m"])
+      Game.make_guess(acc, "dog")
    end)
-   assert Game.game_over(game) == "Keep playing"
+   assert game.turn_state == :continue
   end
 
   test "game ends when player guesses the secret word" do
     game = Game.new
-    game = Game.add_guess(game, [correct: "d", correct: "o", correct: "m"])
-    assert Game.win_game(game) == "YOU WON!"
+    game = Game.set_secret(game, "dog")
+    game = Game.make_guess(game, "dog")
+    assert game.turn_state == :win
   end
 
-  test "the player guessed incorrect letter" do
+  test "check if last player guess is correct" do
     game = Game.new
-    game = Game.add_guess(game, [incorrect: "o"])
-    assert Game.win_game(game) == Game.game_over(game)
+    game = Game.set_secret(game, "dog")
+    game = Game.make_guess(game, "dog")
+    assert Game.correct_guess(game) == true
   end
 
-  test "the player guessed partial letter" do
+  test "check if last player guess is incorrect" do
     game = Game.new
-    game = Game.add_guess(game, [partial: "o"])
-    assert Game.win_game(game) == Game.game_over(game)
+    game = Game.set_secret(game, "cat")
+    game = Game.make_guess(game, "dog")
+    assert Game.correct_guess(game) == false
   end
 
-  test "the player guessed partial and incorrect letters" do
+  test "check if last player guess has a partially correct letter" do
     game = Game.new
-    game = Game.add_guess(game, [partial: "o", incorrect: "a"])
-    assert Game.win_game(game) == Game.game_over(game)
+    game = Game.set_secret(game, "cat")
+    game = Game.make_guess(game, "rat")
+    assert Game.correct_guess(game) == false
   end
 
+  test "check if player has lost" do
+    game = Game.new
+    game = Game.set_secret(game, "cat")
+    game = Enum.reduce(1..6, game, fn _, acc ->
+      Game.make_guess(acc, "dog")
+    end)
+    assert Game.check_loss(game) == true
+  end
 
+  test "check loss state if player has not taken any turns" do
+    game = Game.new
+    assert Game.check_loss(game) == false
+  end
+
+  test "check if player has turns remaining mid-game" do
+    game = Game.new
+    game = Game.set_secret(game, "cat")
+    game = Enum.reduce(1..3, game, fn _, acc ->
+      Game.make_guess(acc, "dog")
+    end)
+    assert Game.check_loss(game) == false
+  end
+
+  test "check turn result when result is a win" do
+    game = Game.new
+    game = Game.set_secret(game, "dog")
+    game = Game.make_guess(game, "dog")
+    game_result = Game.turn_result(game)
+    assert game_result.turn_state == :win
+  end
+
+  test "check turn result when result is a loss" do
+    game = Game.new
+    game = Game.set_secret(game, "cat")
+    game = Enum.reduce(1..6, game, fn _, acc ->
+      Game.make_guess(acc, "dog")
+    end)
+    game_result = Game.turn_result(game)
+    assert game_result.turn_state == :lose
+  end
+
+  test "check turn result when player has turns remaining" do
+    game = Game.new
+    game = Game.set_secret(game, "cat")
+    game = Enum.reduce(1..3, game, fn _, acc ->
+      Game.make_guess(acc, "dog")
+    end)
+    game_result = Game.turn_result(game)
+    assert game_result.turn_state == :continue
+  end
 end
