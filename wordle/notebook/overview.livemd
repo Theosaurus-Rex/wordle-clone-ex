@@ -33,11 +33,28 @@ Guess.guess("def", "efd")
 ```
 
 ```elixir
-Guess.guess("abc", "abc")
+result = Guess.guess("abc", "ace")
 ```
 
 <!-- livebook:{"output":true} -->
 
 ```
-[correct: "a", correct: "b", correct: "c"]
+[correct: "a", incorrect: "b", partial: "c"]
+```
+
+```elixir
+result
+|> Enum.map(fn {r, _} ->
+  case r do
+    :correct -> "🟩"
+    :partial -> "🟨"
+    _ -> "⬜"
+  end
+end)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["🟩", "⬜", "🟨"]
 ```
