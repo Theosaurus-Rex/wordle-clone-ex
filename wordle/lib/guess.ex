@@ -55,10 +55,10 @@ defmodule Guess do
 
     ## Examples
 
-      iex> check_letter('d', 'c', 'cat')
+      iex> Guess.check_letter('d', 'c', 'cat')
       {:incorrect, "d"}
 
-      iex> check_letter('o', 'o', 'frog')
+      iex> Guess.check_letter('o', 'o', 'frog')
       {:correct, "o"}
   """
   @spec check_letter(char, char, charlist) ::

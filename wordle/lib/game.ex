@@ -87,4 +87,10 @@ defmodule Game do
     %Game{game | guesses: guesses ++ [player_guess]}
   end
 
+  def game_over(%Game{guesses: guesses, max_turns: max_turns} = game) do
+    cond do
+      length(game.guesses) == game.max_turns -> "You reached the end of the game"
+    end
+  end
+
 end
