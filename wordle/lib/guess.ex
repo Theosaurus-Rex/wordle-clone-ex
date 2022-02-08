@@ -1,4 +1,4 @@
-import Game
+alias Game
 
 defmodule Guess do
   @moduledoc """
@@ -8,7 +8,7 @@ defmodule Guess do
   @type letter_guess_result :: {guess_result, binary}
   @type word_guess_result :: list(letter_guess_result)
 
-  @spec guess(wordle_game, binary, binary) :: word_guess_result
+  @spec guess(binary, binary) :: word_guess_result
 
   @type word :: binary
   @type guess :: binary

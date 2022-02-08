@@ -49,8 +49,4 @@ defmodule GuessTest do
   test "guess longer than secret word length throws an error" do
     assert Guess.guess("lizard", "cat") == {:error, :guess_too_long}
   end
-
-  # test "player guess is compared to secret word when entered" do
-  #   assert Guess.get_player_guess("words") == Guess.guess("words")
-  # end
 end

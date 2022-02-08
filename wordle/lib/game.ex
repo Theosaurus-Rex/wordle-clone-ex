@@ -65,6 +65,9 @@ defmodule Game do
     %Game{game | secret_word: Enum.random(dictionary)}
   end
 
+  @doc """
+    Asks the player for their guess and takes their input via the keyboard. Then, it calls the guess method on the player's input and add's the guess to the list of guesses stored in the current game's state.
+  """
   def get_player_guess(game) do
     player_guess = String.trim(IO.gets("Enter your guess:\n"))
     Game.add_guess(game, Guess.guess(player_guess, game.secret_word))
@@ -97,15 +100,22 @@ defmodule Game do
     |> win_game()
   end
 
-  def game_over(%Game{guesses: guesses, max_turns: max_turns, secret_word: secret_word} = game) do
+  @doc """
+    Takes a current game state as the argument and checks if the user has any turns remaining by comparing the number of guesses made so far to the number of maximum turns.
+  """
+  def game_over(%Game{guesses: _guesses, max_turns: _max_turns, secret_word: _secret_word} = game) do
     cond do
       length(game.guesses) < game.max_turns -> "Keep playing"
       length(game.guesses) == game.max_turns -> "GAME OVER!"
     end
   end
 
-  def win_game(%Game{guesses: guesses} = game) do
-    [head | tail] = Enum.reverse(game.guesses)
+  @doc """
+    Takes the most recent guess submitted by the player and assesses whether or not they have guessed the secret word, i.e. whether or not all of the keys in their guess response have returned as "correct".
+    If any of the keys are equal or :incorrect or :partial, it runs the game_over function to check if the player has any turns remaining.
+  """
+  def win_game(%Game{guesses: _guesses} = game) do
+    [head | _tail] = Enum.reverse(game.guesses)
     last_guess = head
     has_incorrect = Keyword.has_key?(last_guess, :incorrect)
     has_partial = Keyword.has_key?(last_guess, :partial)
@@ -114,14 +124,4 @@ defmodule Game do
       !has_incorrect && !has_partial -> "YOU WON!"
     end
   end
-
-  # C player initiates new game
-  # C the game sets a secret word (set_secret)
-  # C player inputs first guess (guess)
-  #     C game checks if player guess is correct (check_letter)
-  #         if the guess has incorrect or partial letter, the game contues and player needs to make a new guess
-  #             the player gets new turn (add_guess)
-  #         if the guess has only correct letters, the player wins (win_game)
-  #         if the player doenst guess correctly after 6 turns the game is over (game_over)
-
 end
