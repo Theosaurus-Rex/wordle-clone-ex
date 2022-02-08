@@ -1,5 +1,6 @@
-defmodule Guess do
+import Game
 
+defmodule Guess do
   @moduledoc """
     Provides methods for parsing and operating on guesses entered by the player.
   """
@@ -7,7 +8,7 @@ defmodule Guess do
   @type letter_guess_result :: {guess_result, binary}
   @type word_guess_result :: list(letter_guess_result)
 
-  @spec guess(binary, binary) :: word_guess_result
+  @spec guess(wordle_game, binary, binary) :: word_guess_result
 
   @type word :: binary
   @type guess :: binary
@@ -28,7 +29,7 @@ defmodule Guess do
       [partial: "r", correct: "a", incorrect: "t"]
   """
 
-  def guess(player_guess, secret_word) do
+  def guess(game, player_guess, secret_word) do
     cond do
       String.length(player_guess) < String.length(secret_word) -> {:error, :guess_too_short}
       String.length(player_guess) > String.length(secret_word) -> {:error, :guess_too_long}
@@ -45,8 +46,13 @@ defmodule Guess do
             {[letter_result | result], secret_letters -- [guess_letter]}
           end)
 
-        Enum.reverse(result)
+        Game.add_guess(game, Enum.reverse(result))
     end
+  end
+
+  def get_player_guess(game, secret_word) do
+    player_guess = String.trim(IO.gets("Enter your guess:\n"))
+    guess(game, player_guess, secret_word)
   end
 
   @doc """

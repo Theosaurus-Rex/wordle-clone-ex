@@ -104,4 +104,14 @@ defmodule Game do
       !has_incorrect && !has_partial -> "YOU WON!"
     end
   end
+
+  # C player initiates new game
+  # C the game sets a secret word (set_secret)
+  # C player inputs first guess (guess)
+  #     C game checks if player guess is correct (check_letter)
+  #         if the guess has incorrect or partial letter, the game contues and player needs to make a new guess
+  #             the player gets new turn (add_guess)
+  #         if the guess has only correct letters, the player wins (win_game)
+  #         if the player doenst guess correctly after 6 turns the game is over (game_over)
+
 end
