@@ -7,10 +7,11 @@ defmodule PlayGame do
   end
 
   def take_turn(game) do
-    turn_result = get_player_guess(game)
-    turn_result = Game.make_guess(game, turn_result)
+    guess_result = get_player_guess()
+    turn_result = Game.make_guess(game, guess_result)
     if !Enum.empty?(turn_result.guesses) do
       [last_guess| _tail] = turn_result.guesses
+      IO.puts("Nice try - here's your guess result\n")
       IO.inspect(last_guess)
     end
     cond do
@@ -23,13 +24,16 @@ defmodule PlayGame do
     @doc """
     Asks the player for their guess and takes their input via the keyboard. Then, it calls the guess method on the player's input and make's the guess to the list of guesses stored in the current game's state.
   """
-  def get_player_guess(game) do
-    guess = String.trim(IO.gets("Enter your guess:\n"))
+  def get_player_guess() do
+    String.trim(IO.gets("Enter your guess:\n"))
+  end
+
+  def guess_valid?(game, guess) do
     if Enum.member?(game.dictionary, guess) do
-      {:ok, guess}
+      guess
     else
-      {:error, :invalid_word}
-      get_player_guess(game)
+      IO.puts("Please enter a valid word")
+      get_player_guess()
     end
   end
 end
