@@ -30,10 +30,6 @@ defmodule Guess do
   """
 
   def guess(player_guess, secret_word) do
-    cond do
-      String.length(player_guess) < String.length(secret_word) -> {:error, :guess_too_short}
-      String.length(player_guess) > String.length(secret_word) -> {:error, :guess_too_long}
-      String.length(player_guess) == String.length(secret_word) ->
         secret_letters = String.to_charlist(secret_word)
 
         {result, _} =
@@ -47,7 +43,6 @@ defmodule Guess do
           end)
 
         Enum.reverse(result)
-    end
   end
 
 

@@ -41,12 +41,4 @@ defmodule GuessTest do
   test "multiple letter in secret word match one letter in guess" do
     assert Guess.guess("doggo", "adder") == [partial: "d", incorrect: "o", incorrect: "g", incorrect: "g", incorrect: "o"]
   end
-
-  test "guess shorter than secret word length throws an error" do
-    assert Guess.guess("cat", "lizard") == {:error, :guess_too_short}
-  end
-
-  test "guess longer than secret word length throws an error" do
-    assert Guess.guess("lizard", "cat") == {:error, :guess_too_long}
-  end
 end

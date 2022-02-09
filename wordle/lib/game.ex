@@ -4,9 +4,9 @@ defmodule Game do
   @moduledoc """
     The Game module handles the state of the Wordle game. This includes keeping track of the dictionary, the number of turns allowed, the turns previously taken by the player, and the secret word for any instance of the game.
   """
-  @dictionary ["words", "games", "phone", "mouse"]
+  @guess_dictionary Dictionary.guess_dictionary() ++ Dictionary.secret_dictionary()
 
-  defstruct dictionary: @dictionary,
+  defstruct guess_dictionary: @guess_dictionary,
             max_turns: 6,
             secret_word: "",
             guesses: [],
@@ -108,7 +108,7 @@ defmodule Game do
   end
 
   def correct_guess(game) do
-    [last_guess| _tail] = Enum.reverse(game.guesses)
+    [last_guess| _tail] = game.guesses
     Enum.all?(last_guess, fn {result, _letter} -> result == :correct end)
   end
 
