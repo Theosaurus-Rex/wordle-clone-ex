@@ -40,7 +40,10 @@ defmodule Game do
         secret_word: ""
       }
   """
-  def new, do: %Game{}
+  def new(secret_word) do
+    game = %Game{}
+    set_secret(game, secret_word)
+  end
 
   @doc """
     Returns a random word from the dictionary and sets it as the secret word for the current Game instance.
@@ -66,16 +69,9 @@ defmodule Game do
     %Game{game | secret_word: secret}
   end
 
-  @doc """
-    Asks the player for their guess and takes their input via the keyboard. Then, it calls the guess method on the player's input and make's the guess to the list of guesses stored in the current game's state.
-  """
-  def get_player_guess() do
-    String.trim(IO.gets("Enter your guess:\n"))
-  end
-
-  def make_guess(player_guess, game) do
+  def make_guess(game, player_guess) do
     guess_result = Guess.guess(player_guess, game.secret_word)
-    %Game{game | guesses: game.guesses ++ [guess_result]}
+    %Game{game | guesses: [guess_result] ++ game.guesses}
     |> turn_result()
   end
 
