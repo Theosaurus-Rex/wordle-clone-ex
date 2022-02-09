@@ -6,6 +6,10 @@ defmodule PlayGame do
   end
 
 
+    @spec get_player_guess(
+            atom
+            | %{:guess_dictionary => any, :secret_word => binary, optional(any) => any}
+          ) :: binary
     @doc """
     Asks the player for their guess and takes their input via the keyboard. Then, it calls the guess method on the player's input and make's the guess to the list of guesses stored in the current game's state.
   """
@@ -32,6 +36,7 @@ defmodule PlayGame do
     end
   end
 
+  
   def take_turn(game) do
     guess = get_player_guess(game)
     game = Game.make_guess(game, guess)
@@ -44,6 +49,7 @@ defmodule PlayGame do
     end
   end
 
+  @spec get_last_guess(atom | %{:guesses => any, optional(any) => any}) :: any
   def get_last_guess(game) do
     if !Enum.empty?(game.guesses) do
       [last_guess| _tail] = game.guesses

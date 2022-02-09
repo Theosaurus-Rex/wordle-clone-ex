@@ -41,4 +41,20 @@ defmodule GuessTest do
   test "multiple letter in secret word match one letter in guess" do
     assert Guess.guess("doggo", "adder") == [partial: "d", incorrect: "o", incorrect: "g", incorrect: "g", incorrect: "o"]
   end
+
+  test "multiple of same letter in guess but not in secret word" do
+    assert Guess.guess("props", "shops") == [incorrect: "p", incorrect: "r", correct: "o", correct: "p", correct: "s"]
+  end
+
+  test "correct pass returns correct keys for letters that match" do
+    assert Guess.correct_pass("d", "d") == {[correct: "d"], []}
+  end
+
+  test "correct pass returns incorrect keys for letters that don't match" do
+    assert Guess.correct_pass("a", "d") == {[incorrect: "a"], ['d']}
+  end
+
+  test "correct pass returns multiple different letters with correct statuses" do
+    assert Guess.correct_pass("dog", "fog") == {[incorrect: "d", correct: "o", correct: "g"], ['f']}
+  end
 end

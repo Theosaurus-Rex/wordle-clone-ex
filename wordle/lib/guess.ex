@@ -63,10 +63,39 @@ defmodule Guess do
           {:correct, binary} | {:incorrect, binary} | {:partial, binary}
 
   def check_letter(guess_letter, secret_letter, secret_letters) do
-    cond do
-      guess_letter == secret_letter -> {:correct, to_string([guess_letter])}
-      guess_letter in secret_letters -> {:partial, to_string([guess_letter])}
-      true -> {:incorrect, to_string([guess_letter])}
-    end
+    # cond do
+    #   guess_letter == secret_letter -> {:correct, to_string([guess_letter])}
+    #   guess_letter in secret_letters -> {:partial, to_string([guess_letter])}
+    #   true -> {:incorrect, to_string([guess_letter])}
+    # end
+
+  end
+
+  def initial_state(secret_letters) do
+    secret_letters
+    |> Enum.map(fn(letter) -> {:incorrect, letter} end)
+  end
+
+  def correct_pass(player_guess, secret_letters) do
+    secret_letter_charlist = String.to_charlist(secret_letters)
+    {result, remaining_letters} = Enum.zip(String.to_charlist(player_guess), initial_state(secret_letter_charlist))
+    |> Enum.reduce({[], secret_letter_charlist}, fn({guess_letter, {status, secret_letter}}, {result, remaining_letters}) ->
+        cond do
+          guess_letter == secret_letter ->  {[{:correct, to_string([secret_letter])} | result], remaining_letters -- [secret_letter]}
+          true -> {[{status, to_string([guess_letter])} | result], [remaining_letters]}
+        end
+    end)
+    IO.inspect(result)
+    {Enum.reverse(result), remaining_letters}
+  end
+
+  def partial_pass(player_guess, updated_state, secret_letters) do
+    Enum.zip(player_guess, updated_state)
+    |> Enum.map(fn({guess_letter, {status, secret_letter}}) ->
+      cond do
+        status == :correct -> {status, secret_letter}
+
+      end
+    end)
   end
 end
