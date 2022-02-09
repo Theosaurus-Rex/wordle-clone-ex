@@ -73,7 +73,7 @@ defmodule Game do
     String.trim(IO.gets("Enter your guess:\n"))
   end
 
-  def make_guess(game, player_guess) do
+  def make_guess(player_guess, game) do
     guess_result = Guess.guess(player_guess, game.secret_word)
     %Game{game | guesses: game.guesses ++ [guess_result]}
     |> turn_result()
