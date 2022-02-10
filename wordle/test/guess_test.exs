@@ -51,10 +51,23 @@ defmodule GuessTest do
   end
 
   test "correct pass returns incorrect keys for letters that don't match" do
-    assert Guess.correct_pass("a", "d") == {[incorrect: "a"], ['d']}
+    assert Guess.correct_pass("a", "d") == {[incorrect: "a"], [?d]}
   end
 
   test "correct pass returns multiple different letters with correct statuses" do
-    assert Guess.correct_pass("dog", "fog") == {[incorrect: "d", correct: "o", correct: "g"], ['f']}
+    assert Guess.correct_pass("dog", "fog") == {[incorrect: "d", correct: "o", correct: "g"], [?f]}
+  end
+
+  test "correct pass returns the correct statuses for guess of multiple of the same letter" do
+    assert Guess.correct_pass("ddg", "dog") == {[correct: "d", incorrect: "d", correct: "g"], [?o]}
+  end
+
+  test "correct pass returns multiple of same letter in guess but not in secret word" do
+    assert Guess.correct_pass("props", "shops") == {[incorrect: "p", incorrect: "r", correct: "o", correct: "p", correct: "s"], [?h, ?s]}
+  end
+
+  test "partial pass returns partial match for letters that are in the secret word but in the wrong place" do
+    updated_state = {[incorrect: "d", incorrect: "o", incorrect: "t"], [?f, ?d, ?g]}
+    assert Guess.partial_pass("dot", updated_state, "fdg") == {[partial: "d", incorrect: "o", incorrect: "t"] , [?g, ?f]}
   end
 end
