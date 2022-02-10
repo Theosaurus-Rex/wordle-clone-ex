@@ -13,7 +13,6 @@ defmodule Guess do
   @type word :: binary
   @type guess :: binary
   @type wordle_game :: %{
-          dictionary: list(word()),
           max_turns: non_neg_integer(),
           secret_word: word(),
           guesses: list(word_guess_result())
@@ -30,38 +29,18 @@ defmodule Guess do
   """
 
   def guess(player_guess, secret_word) do
-    updated_state = correct_pass(player_guess, secret_word)
-    partial_pass(player_guess, updated_state)
+    player_guess
+    |> correct_pass(secret_word)
+    |> partial_pass(player_guess)
   end
 
-  @doc """
-    Takes in a tuple containing 2 chars - one from the guess and one from the secret word, as well as the whole secret word.
-    Compares the guess letter to the secret letter and returns its match status (correct, incorrect, partial) and the guess letter as a tuple.
-
-    ## Examples
-
-      iex> Guess.check_letter('d', 'c', 'cat')
-      {:incorrect, "d"}
-
-      iex> Guess.check_letter('o', 'o', 'frog')
-      {:correct, "o"}
-  """
-  @spec check_letter(char, char, charlist) ::
-          {:correct, binary} | {:incorrect, binary} | {:partial, binary}
-
-  def check_letter(guess_letter, secret_letter, secret_letters) do
-    cond do
-      guess_letter == secret_letter -> {:correct, to_string([guess_letter])}
-      guess_letter in secret_letters -> {:partial, to_string([guess_letter])}
-      true -> {:incorrect, to_string([guess_letter])}
-    end
-  end
-
+  @spec initial_state(any) :: list
   def initial_state(secret_letters) do
     secret_letters
     |> Enum.map(fn letter -> {:incorrect, letter} end)
   end
 
+  @spec correct_pass(binary, binary) :: {list, any}
   def correct_pass(player_guess, secret_letters) do
     secret_letter_charlist = String.to_charlist(secret_letters)
 
@@ -77,6 +56,7 @@ defmodule Guess do
     {Enum.reverse(result), remainders}
   end
 
+  @spec compare_letter(binary, binary, list, list) :: {list, list}
   def compare_letter(letter, letter, result, remaining_letters) do
     {[{:correct, to_string([letter])} | result], remaining_letters -- [letter]}
   end
@@ -85,7 +65,8 @@ defmodule Guess do
     {[{:incorrect, to_string([guess_letter])} | result], remaining_letters}
   end
 
-  def partial_pass(player_guess, {letter_state, remainders}) do
+  @spec partial_pass({list, list}, binary) :: list
+  def partial_pass({letter_state, remainders}, player_guess) do
     {result, _remainders} =
       player_guess
       |> String.to_charlist()
@@ -98,6 +79,7 @@ defmodule Guess do
     Enum.reverse(result)
   end
 
+  @spec partial_match(any, any, any, any) :: {nonempty_maybe_improper_list, any}
   def partial_match(guess_letter, :correct, remainders, result) do
     {[{:correct, to_string([guess_letter])} | result], remainders}
   end

@@ -1,15 +1,13 @@
 defmodule PlayGame do
 
   def start_game() do
-    game = Game.new(Enum.random(Dictionary.secret_dictionary()))
+    game = Game.new(Dictionary.get_secret())
     take_turn(game)
   end
 
 
-    @spec get_player_guess(
-            atom
-            | %{:guess_dictionary => any, :secret_word => binary, optional(any) => any}
-          ) :: binary
+
+    @spec get_player_guess(atom | %{:secret_word => binary}) :: binary
     @doc """
     Asks the player for their guess and takes their input via the keyboard. Then, it calls the guess method on the player's input and make's the guess to the list of guesses stored in the current game's state.
   """
@@ -27,7 +25,7 @@ defmodule PlayGame do
         IO.puts("Your guess was too short - try a different word\n")
         get_player_guess(game)
       true ->
-        if Enum.member?(game.guess_dictionary, guess) do
+        if Dictionary.validate_guess(guess) do
           guess
         else
           IO.puts("Please enter a valid word")
@@ -36,7 +34,7 @@ defmodule PlayGame do
     end
   end
 
-  
+  @spec take_turn(%Game{}) :: none
   def take_turn(game) do
     guess = get_player_guess(game)
     game = Game.make_guess(game, guess)
@@ -54,7 +52,17 @@ defmodule PlayGame do
     if !Enum.empty?(game.guesses) do
       [last_guess| _tail] = game.guesses
       IO.puts("Nice try - here's your guess result\n")
-      IO.inspect(last_guess)
+      IO.inspect(Enum.map(last_guess, fn {r, _} ->
+        case r do
+          :correct -> "🟩"
+          :partial -> "🟨"
+          _ -> "⬜"
+        end
+      end))
+      guess_output = Enum.map(last_guess, fn {_, letter} ->
+        letter
+      end)
+      IO.inspect(Enum.join(guess_output))
     end
   end
 

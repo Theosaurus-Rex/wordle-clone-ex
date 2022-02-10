@@ -4,10 +4,8 @@ defmodule Game do
   @moduledoc """
     The Game module handles the state of the Wordle game. This includes keeping track of the dictionary, the number of turns allowed, the turns previously taken by the player, and the secret word for any instance of the game.
   """
-  @guess_dictionary Dictionary.guess_dictionary() ++ Dictionary.secret_dictionary()
 
-  defstruct guess_dictionary: @guess_dictionary,
-            max_turns: 6,
+  defstruct max_turns: 6,
             secret_word: "",
             guesses: [],
             turn_state: :continue
@@ -21,10 +19,9 @@ defmodule Game do
   @type word :: binary
   @type guess :: binary
   @type wordle_game :: %{
-          dictionary: list(word()),
           max_turns: non_neg_integer(),
           secret_word: word(),
-          guesses: list(word_guess_result()),
+          guesses: list(word_guess_result())
         }
 
   @doc """
@@ -40,6 +37,8 @@ defmodule Game do
         secret_word: ""
       }
   """
+  @spec new(any) :: %Game{}
+
   def new(secret_word) do
     game = %Game{}
     set_secret(game, secret_word)
@@ -65,12 +64,15 @@ defmodule Game do
         secret_word: "phone"
       }
   """
+  @spec set_secret(%Game{}, binary) :: %Game{}
   def set_secret(game, secret) do
     %Game{game | secret_word: secret}
   end
 
+  @spec make_guess(%Game{}, binary) :: %Game{}
   def make_guess(game, player_guess) do
     guess_result = Guess.guess(player_guess, game.secret_word)
+
     %Game{game | guesses: [guess_result] ++ game.guesses}
     |> turn_result()
   end
@@ -97,7 +99,7 @@ defmodule Game do
         secret_word: ""
       }
   """
-
+  @spec turn_result(%Game{}) :: %Game{}
 
   def turn_result(%Game{guesses: _guesses} = game) do
     cond do
@@ -107,11 +109,14 @@ defmodule Game do
     end
   end
 
+  @spec correct_guess(atom | %{:guesses => nonempty_maybe_improper_list, optional(any) => any}) ::
+          boolean
   def correct_guess(game) do
-    [last_guess| _tail] = game.guesses
+    [last_guess | _tail] = game.guesses
     Enum.all?(last_guess, fn {result, _letter} -> result == :correct end)
   end
 
+  @spec check_loss(atom | %{:guesses => list, :max_turns => any, optional(any) => any}) :: boolean
   def check_loss(game) do
     length(game.guesses) == game.max_turns
   end

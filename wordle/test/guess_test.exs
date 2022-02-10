@@ -68,6 +68,6 @@ defmodule GuessTest do
 
   test "partial pass returns partial match for letters that are in the secret word but in the wrong place" do
     {letter_state, remainders} = {[incorrect: "d", incorrect: "o", incorrect: "t"], [?f, ?d, ?g]}
-    assert Guess.partial_pass("dot", {letter_state, remainders}) == [partial: "d", incorrect: "o", incorrect: "t"]
+    assert Guess.partial_pass({letter_state, remainders}, "dot") == [partial: "d", incorrect: "o", incorrect: "t"]
   end
 end
