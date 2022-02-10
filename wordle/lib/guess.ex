@@ -30,19 +30,8 @@ defmodule Guess do
   """
 
   def guess(player_guess, secret_word) do
-    secret_letters = String.to_charlist(secret_word)
-
-    {result, _} =
-      player_guess
-      |> String.to_charlist()
-      |> Enum.zip(secret_letters)
-      |> Enum.reduce({[], secret_letters}, fn {guess_letter, secret_letter},
-                                              {result, secret_letters} ->
-        letter_result = check_letter(guess_letter, secret_letter, secret_letters)
-        {[letter_result | result], secret_letters -- [guess_letter]}
-      end)
-
-    Enum.reverse(result)
+    updated_state = correct_pass(player_guess, secret_word)
+    partial_pass(player_guess, updated_state)
   end
 
   @doc """
@@ -80,47 +69,46 @@ defmodule Guess do
       player_guess
       |> String.to_charlist()
       |> Enum.zip(initial_state(secret_letter_charlist))
-      |> Enum.reduce({[], secret_letter_charlist}, fn {guess_letter, {status, secret_letter}},
+      |> Enum.reduce({[], secret_letter_charlist}, fn {guess_letter, {_status, secret_letter}},
                                                       {result, remaining_letters} ->
-                                                        compare_letter(guess_letter, secret_letter, result, remaining_letters)
+        compare_letter(guess_letter, secret_letter, result, remaining_letters)
       end)
 
     {Enum.reverse(result), remainders}
   end
 
   def compare_letter(letter, letter, result, remaining_letters) do
-    {[{:correct, to_string([letter])} | result],
-             remaining_letters -- [letter]}
+    {[{:correct, to_string([letter])} | result], remaining_letters -- [letter]}
   end
 
   def compare_letter(guess_letter, _, result, remaining_letters) do
     {[{:incorrect, to_string([guess_letter])} | result], remaining_letters}
   end
 
-  def partial_pass(player_guess, updated_state, remainders) do
-    {result, remainders} =
+  def partial_pass(player_guess, {letter_state, remainders}) do
+    {result, _remainders} =
       player_guess
       |> String.to_charlist()
-      |> Enum.zip(updated_state)
-      |> Enum.reduce({[], remainders}, fn {guess_letter, {status, secret_letter}},
-          {result, remaining_letters} ->
-          partial_match(player_guess, status, remaining_letters, result)
-    end)
+      |> Enum.zip(letter_state)
+      |> Enum.reduce({[], remainders}, fn {guess_letter, {status, _secret_letter}},
+                                          {result, remaining_letters} ->
+        partial_match(guess_letter, status, remaining_letters, result)
+      end)
+
+    Enum.reverse(result)
   end
 
-  def partial_match(player_guess, :correct, remainders, result) do
-    {[{:correct, to_string([player_guess])} | result],
-             remainders}
+  def partial_match(guess_letter, :correct, remainders, result) do
+    {[{:correct, to_string([guess_letter])} | result], remainders}
   end
 
-  def partial_match(player_guess, _, remainders, result) do
+  def partial_match(guess_letter, _, remainders, result) do
     cond do
-      Enum.member?(remainders, player_guess) ->
-        {[{:partial, to_string([player_guess])} | result],
-             remainders -- [player_guess]}
+      Enum.member?(remainders, guess_letter) ->
+        {[{:partial, to_string([guess_letter])} | result], remainders -- [guess_letter]}
+
       true ->
-        {[{:incorrect, to_string([player_guess])} | result],
-              remainders}
+        {[{:incorrect, to_string([guess_letter])} | result], remainders}
     end
   end
 end
