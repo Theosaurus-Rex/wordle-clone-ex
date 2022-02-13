@@ -69,6 +69,25 @@ defmodule Game do
     %Game{game | secret_word: secret}
   end
 
+  @spec guess_valid?(atom | %{:secret_word => binary, optional(any) => any}, binary) ::
+          {:error, :guess_too_long | :guess_too_short | :invalid_guess} | {:ok, binary}
+  def guess_valid?(game, guess) do
+    cond do
+      String.length(guess) > String.length(game.secret_word) ->
+        {:error, :guess_too_long}
+
+      String.length(guess) < String.length(game.secret_word) ->
+        {:error, :guess_too_short}
+
+      true ->
+        if Dictionary.validate_guess(guess) do
+          {:ok, guess}
+        else
+          {:error, :invalid_guess}
+        end
+    end
+  end
+
   @spec make_guess(%Game{}, binary) :: %Game{}
   def make_guess(game, player_guess) do
     guess_result = Guess.guess(player_guess, game.secret_word)

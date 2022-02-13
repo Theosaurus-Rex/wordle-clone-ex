@@ -1,7 +1,7 @@
 {application,wordle,
              [{applications,[kernel,stdlib,elixir,logger]},
               {description,"wordle"},
-              {modules,['Elixir.Dictionary','Elixir.Game','Elixir.Guess',
-                        'Elixir.PlayGame']},
+              {modules,['Elixir.CLI','Elixir.Dictionary','Elixir.Game',
+                        'Elixir.Guess']},
               {registered,[]},
               {vsn,"0.1.0"}]}.
