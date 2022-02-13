@@ -1,14 +1,27 @@
 defmodule CLI do
-  def start_game() do
-    game = Game.new(Dictionary.get_secret())
-    get_player_guess(game)
+  def start_game(secret_word \\ Dictionary.get_secret()) do
+    secret_word
+    |> Game.new()
+    |> turn()
   end
 
+  def turn(game) do
+    {_status, guess} = get_player_guess(game)
+    submit_guess(game, guess)
+  end
+
+  def get_player_guess(game) do
+    guess = get_player_input()
+    validate_guess(game, guess)
+  end
   @doc """
     Asks the player for their guess and takes their input via the keyboard. Then, it calls the guess method on the player's input and make's the guess to the list of guesses stored in the current game's state.
   """
-  def get_player_guess(game) do
-    guess = String.trim(IO.gets("Enter your guess:\n"))
+  def get_player_input() do
+   String.trim(IO.gets("Enter your guess:\n"))
+  end
+
+  def validate_guess(game, guess) do
     {status, error_message} = Game.guess_valid?(game, guess)
 
     case {status, error_message} do
@@ -17,11 +30,11 @@ defmodule CLI do
         get_player_guess(game)
 
       _ ->
-        take_turn(game, guess)
+        {:ok, guess}
     end
   end
 
-  def take_turn(game, guess) do
+  def submit_guess(game, guess) do
     game = Game.make_guess(game, guess)
 
     cond do
@@ -33,7 +46,7 @@ defmodule CLI do
 
       true ->
         output_last_guess(hd(game.guesses))
-        get_player_guess(game)
+        turn(game)
     end
   end
 
@@ -50,7 +63,7 @@ defmodule CLI do
   end
 
   def declare_win(game) do
-    IO.puts("You win! The answer was #{game.secret_word}")
+    "You win! The answer was #{game.secret_word}"
   end
 
   def declare_game_over(game) do
@@ -60,7 +73,7 @@ defmodule CLI do
   def output_last_guess(last_guess) do
     IO.puts("Nice try - here's your guess result\n")
 
-    IO.inspect(
+    IO.puts(
       Enum.map(last_guess, fn {r, _} ->
         case r do
           :correct -> "🟩"
@@ -68,6 +81,7 @@ defmodule CLI do
           _ -> "⬜"
         end
       end)
+      |> Enum.join()
     )
 
     guess_output =
@@ -75,6 +89,6 @@ defmodule CLI do
         letter
       end)
 
-    IO.inspect(Enum.join(guess_output))
+    IO.puts(Enum.join(guess_output))
   end
 end

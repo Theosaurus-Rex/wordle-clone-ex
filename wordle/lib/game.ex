@@ -8,6 +8,7 @@ defmodule Game do
   defstruct max_turns: 6,
             secret_word: "",
             guesses: [],
+            remaining_letters: [],
             turn_state: :continue
 
   @type guess_result :: :correct | :incorrect | :partial

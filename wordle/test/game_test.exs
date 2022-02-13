@@ -1,12 +1,12 @@
 defmodule GameTest do
   use ExUnit.Case
 
-  test "a new function should return a new instance of game" do
+  test "new function should return a new instance of game" do
     game = Game.new("steps")
     assert game == %Game{secret_word: "steps"}
   end
 
-  test "a function sets secret word from dictionary" do
+  test "newfunction sets secret word from dictionary" do
     dictionary = ["stone"]
     game = Game.new(Enum.random(dictionary))
     assert Enum.member?(dictionary, game.secret_word)
@@ -64,7 +64,7 @@ defmodule GameTest do
     assert Game.correct_guess(game) == false
   end
 
-  test "check if player has lost" do
+  test "check if player has lost at 6 turns" do
     game = Game.new("cat")
 
     game =

@@ -80,11 +80,11 @@ defmodule Guess do
   end
 
   @spec partial_match(any, any, any, any) :: {nonempty_maybe_improper_list, any}
-  def partial_match(guess_letter, :correct, remainders, result) do
+  defp partial_match(guess_letter, :correct, remainders, result) do
     {[{:correct, to_string([guess_letter])} | result], remainders}
   end
 
-  def partial_match(guess_letter, _, remainders, result) do
+  defp partial_match(guess_letter, _, remainders, result) do
     cond do
       Enum.member?(remainders, guess_letter) ->
         {[{:partial, to_string([guess_letter])} | result], remainders -- [guess_letter]}

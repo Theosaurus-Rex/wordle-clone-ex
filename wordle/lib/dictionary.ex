@@ -1,10 +1,4 @@
 defmodule Dictionary do
-  @spec validate_secret(any) :: boolean
-  def validate_secret(secret_word) do
-    secret_dictionary()
-    |> Enum.member?(secret_word)
-  end
-
   @spec validate_guess(any) :: boolean
   def validate_guess(guess) do
     dictionary = guess_dictionary() ++ secret_dictionary()
