@@ -17,8 +17,8 @@ defmodule CLI do
   @doc """
     Asks the player for their guess and takes their input via the keyboard. Then, it calls the guess method on the player's input and make's the guess to the list of guesses stored in the current game's state.
   """
-  def get_player_input() do
-   String.trim(IO.gets("Enter your guess:\n"))
+  def get_player_input(io \\ IO) do
+   String.trim(io.gets("Enter your guess:\n"))
   end
 
   def validate_guess(game, guess) do
@@ -51,15 +51,15 @@ defmodule CLI do
   end
 
   def print_error(:guess_too_long) do
-    IO.puts("Your guess was too long - try a different word\n")
+    "Your guess was too long - try a different word\n"
   end
 
   def print_error(:guess_too_short) do
-    IO.puts("Your guess was too short - try a different word\n")
+    "Your guess was too short - try a different word\n"
   end
 
   def print_error(:invalid_guess) do
-    IO.puts("Please enter a valid word")
+    "Please enter a valid word"
   end
 
   def declare_win(game) do
