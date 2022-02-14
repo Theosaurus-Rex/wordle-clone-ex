@@ -45,21 +45,21 @@ defmodule CLI do
         declare_game_over(game)
 
       true ->
-        output_last_guess(hd(game.guesses))
+        output_last_guess(game, hd(game.guesses))
         turn(game)
     end
   end
 
   def print_error(:guess_too_long) do
-    "Your guess was too long - try a different word\n"
+    IO.puts("Your guess was too long - try a different word\n")
   end
 
   def print_error(:guess_too_short) do
-    "Your guess was too short - try a different word\n"
+    IO.puts("Your guess was too short - try a different word\n")
   end
 
   def print_error(:invalid_guess) do
-    "Please enter a valid word"
+    IO.puts("Please enter a valid word")
   end
 
   def declare_win(game) do
@@ -70,7 +70,7 @@ defmodule CLI do
     "Game over! The answer was #{game.secret_word}. Better luck next time!"
   end
 
-  def output_last_guess(last_guess) do
+  def output_last_guess(game, last_guess) do
     IO.puts("Nice try - here's your guess result\n")
 
     IO.puts(
@@ -90,5 +90,8 @@ defmodule CLI do
       end)
 
     IO.puts(Enum.join(guess_output))
+
+    IO.puts("Here are the letters not yet eliminated:\n")
+    IO.puts(game.remaining_letters)
   end
 end

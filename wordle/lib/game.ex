@@ -8,7 +8,7 @@ defmodule Game do
   defstruct max_turns: 6,
             secret_word: "",
             guesses: [],
-            remaining_letters: [],
+            remaining_letters: Enum.map(Enum.to_list(?a..?z), fn(n) -> <<n>> end),
             turn_state: :continue
 
   @type guess_result :: :correct | :incorrect | :partial
@@ -40,7 +40,7 @@ defmodule Game do
   """
   @spec new(any) :: %Game{}
 
-  def new(secret_word) do
+  def new(secret_word \\ Dictionary.get_secret()) do
     game = %Game{}
     set_secret(game, secret_word)
   end
@@ -91,9 +91,10 @@ defmodule Game do
 
   @spec make_guess(%Game{}, binary) :: %Game{}
   def make_guess(game, player_guess) do
-    guess_result = Guess.guess(player_guess, game.secret_word)
+    {guess_result, _remainders} = Guess.guess(player_guess, game.secret_word)
+    updated_game = filter_remainders(game, guess_result)
 
-    %Game{game | guesses: [guess_result] ++ game.guesses}
+    %Game{updated_game | guesses: [guess_result] ++ game.guesses}
     |> turn_result()
   end
 
@@ -139,5 +140,20 @@ defmodule Game do
   @spec check_loss(atom | %{:guesses => list, :max_turns => any, optional(any) => any}) :: boolean
   def check_loss(game) do
     length(game.guesses) == game.max_turns
+  end
+
+  def filter_remainders(game, guess_letters) do
+    updated_remainders = Enum.reduce(guess_letters, game.remaining_letters, fn {status, letter}, acc ->
+      case status do
+        :incorrect ->
+         if Enum.member?(guess_letters, {:correct, letter}) || Enum.member?(guess_letters, {:correct, letter}) do
+           acc
+         else
+          acc -- [letter]
+         end
+        _ -> acc
+      end
+    end)
+    %Game{game | remaining_letters: updated_remainders}
   end
 end

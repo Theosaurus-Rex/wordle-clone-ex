@@ -6,7 +6,7 @@ defmodule GameTest do
     assert game == %Game{secret_word: "steps"}
   end
 
-  test "newfunction sets secret word from dictionary" do
+  test "new function sets secret word from dictionary" do
     dictionary = ["stone"]
     game = Game.new(Enum.random(dictionary))
     assert Enum.member?(dictionary, game.secret_word)
@@ -140,5 +140,38 @@ defmodule GameTest do
   test "guess_valid? returns error when a guess is not in the dictionary" do
     game = Game.new("frogs")
     assert Game.guess_valid?(game, "asdfg") == {:error, :invalid_guess}
+  end
+
+  test "filter_remainders removes incorrect letters guesses from game state" do
+    game = Game.new("house")
+
+    assert Game.filter_remainders(game, [incorrect: "g", incorrect: "r", partial: "o", partial: "u", incorrect: "t"]) == %Game{
+      secret_word: "house",
+      remaining_letters: [
+               "a",
+               "b",
+               "c",
+               "d",
+               "e",
+               "f",
+               "h",
+               "i",
+               "j",
+               "k",
+               "l",
+               "m",
+               "n",
+               "o",
+               "p",
+               "q",
+               "s",
+               "u",
+               "v",
+               "w",
+               "x",
+               "y",
+               "z"
+             ]
+           }
   end
 end

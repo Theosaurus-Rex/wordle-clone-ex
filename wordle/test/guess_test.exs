@@ -3,47 +3,58 @@ defmodule GuessTest do
   doctest Guess
 
   test "correct guess of one letter word" do
-    assert Guess.guess("a", "a") == [correct: "a"]
+    {status, _remainders} = Guess.guess("a", "a")
+    assert status  == [correct: "a"]
   end
 
   test "incorrect guess of one letter word" do
-    assert Guess.guess("b", "a") == [incorrect: "b"]
+    {status, _remainders} = Guess.guess("b", "a")
+    assert status == [incorrect: "b"]
   end
 
   test "correct guess of multiletter word" do
-    assert Guess.guess("bee", "bee") == [correct: "b", correct: "e", correct: "e"]
+    {status, _remainders} = Guess.guess("bee", "bee")
+    assert status == [correct: "b", correct: "e", correct: "e"]
   end
 
   test "incorrect guess of multiletter word" do
-    assert Guess.guess("cat", "dog") == [incorrect: "c", incorrect: "a", incorrect: "t"]
+    {status, _remainders} = Guess.guess("cat", "dog")
+    assert status == [incorrect: "c", incorrect: "a", incorrect: "t"]
   end
 
   test "one letter matches guess of multiletter word" do
-    assert Guess.guess("for", "dog") == [incorrect: "f", correct: "o", incorrect: "r"]
+    {status, _remainders} = Guess.guess("for", "dog")
+    assert status == [incorrect: "f", correct: "o", incorrect: "r"]
   end
 
   test "letter in word but in wrong place" do
-    assert Guess.guess("out", "for") == [partial: "o", incorrect: "u", incorrect: "t"]
+    {status, _remainders} = Guess.guess("out", "for")
+    assert status == [partial: "o", incorrect: "u", incorrect: "t"]
   end
 
   test "multiple letters in word in wrong places" do
-    assert Guess.guess("dgo", "fog") == [incorrect: "d", partial: "g", partial: "o"]
+    {status, _remainders} = Guess.guess("dgo", "fog")
+    assert status == [incorrect: "d", partial: "g", partial: "o"]
   end
 
   test "multiples of one letter in guess" do
-    assert Guess.guess("oto", "for") == [partial: "o", incorrect: "t", incorrect: "o"]
+    {status, _remainders} = Guess.guess("oto", "for")
+    assert  status == [partial: "o", incorrect: "t", incorrect: "o"]
   end
 
   test "multiples of multiple letters in guess" do
-    assert Guess.guess("otto", "toot") == [partial: "o", partial: "t", partial: "t", partial: "o"]
+    {status, _remainders} = Guess.guess("otto", "toot")
+    assert status == [partial: "o", partial: "t", partial: "t", partial: "o"]
   end
 
   test "multiple letter in secret word match one letter in guess" do
-    assert Guess.guess("doggo", "adder") == [partial: "d", incorrect: "o", incorrect: "g", incorrect: "g", incorrect: "o"]
+    {status, _remainders} = Guess.guess("doggo", "adder")
+    assert  status == [partial: "d", incorrect: "o", incorrect: "g", incorrect: "g", incorrect: "o"]
   end
 
   test "multiple of same letter in guess but not in secret word" do
-    assert Guess.guess("props", "shops") == [incorrect: "p", incorrect: "r", correct: "o", correct: "p", correct: "s"]
+    {status, _remainders} = Guess.guess("props", "shops")
+    assert status == [incorrect: "p", incorrect: "r", correct: "o", correct: "p", correct: "s"]
   end
 
   test "correct pass returns correct keys for letters that match" do
@@ -68,6 +79,7 @@ defmodule GuessTest do
 
   test "partial pass returns partial match for letters that are in the secret word but in the wrong place" do
     {letter_state, remainders} = {[incorrect: "d", incorrect: "o", incorrect: "t"], [?f, ?d, ?g]}
-    assert Guess.partial_pass({letter_state, remainders}, "dot") == [partial: "d", incorrect: "o", incorrect: "t"]
+    {status, _remainders} = Guess.partial_pass({letter_state, remainders}, "dot")
+    assert status == [partial: "d", incorrect: "o", incorrect: "t"]
   end
 end

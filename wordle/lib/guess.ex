@@ -8,8 +8,6 @@ defmodule Guess do
   @type letter_guess_result :: {guess_result, binary}
   @type word_guess_result :: list(letter_guess_result)
 
-  @spec guess(binary, binary) :: word_guess_result
-
   @type word :: binary
   @type guess :: binary
   @type wordle_game :: %{
@@ -20,12 +18,6 @@ defmodule Guess do
   @doc """
     Takes the player's guess and the secret word, and compares each of their characters by pairing them up.
     Returns a list of tuples stating the guess status (correct, incorrect, partial) paired with the letter that status represents.
-
-
-    ## Examples
-
-      iex> Guess.guess("rat", "car")
-      [partial: "r", correct: "a", incorrect: "t"]
   """
 
   def guess(player_guess, secret_word) do
@@ -65,9 +57,9 @@ defmodule Guess do
     {[{:incorrect, to_string([guess_letter])} | result], remaining_letters}
   end
 
-  @spec partial_pass({list, list}, binary) :: list
+  @spec partial_pass({list, list}, binary) :: {list, list}
   def partial_pass({letter_state, remainders}, player_guess) do
-    {result, _remainders} =
+    {result, remainders} =
       player_guess
       |> String.to_charlist()
       |> Enum.zip(letter_state)
@@ -76,7 +68,7 @@ defmodule Guess do
         partial_match(guess_letter, status, remaining_letters, result)
       end)
 
-    Enum.reverse(result)
+    {Enum.reverse(result), remainders}
   end
 
   @spec partial_match(any, any, any, any) :: {nonempty_maybe_improper_list, any}
