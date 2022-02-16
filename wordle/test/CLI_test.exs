@@ -17,21 +17,27 @@ defmodule CLITest do
 
   test "player gets declare_game_over message when game status is lose" do
     game = Game.new("couch")
+
     Enum.reduce(1..6, game, fn _, acc ->
       Game.make_guess(acc, "mouse")
     end)
-    assert CLI.declare_game_over(game) == "Game over! The answer was #{game.secret_word}. Better luck next time!"
+
+    assert CLI.declare_game_over(game) ==
+             "Game over! The answer was #{game.secret_word}. Better luck next time!"
   end
 
   test "player gets error message if guess is too long" do
-    assert CLI.print_error(:guess_too_long) == "Your guess was too long - try a different word\n"
+    assert ExUnit.CaptureIO.capture_io(fn -> CLI.print_error(:guess_too_long) end) ==
+             "Your guess was too long - try a different word\n\n"
   end
 
   test "player gets error message if guess is too short" do
-    assert CLI.print_error(:guess_too_short) == "Your guess was too short - try a different word\n"
+    assert ExUnit.CaptureIO.capture_io(fn -> CLI.print_error(:guess_too_short) end) ==
+             "Your guess was too short - try a different word\n\n"
   end
 
   test "player gets error message if an invalid guess is made" do
-    assert CLI.print_error(:invalid_guess) == "Please enter a valid word"
+    assert ExUnit.CaptureIO.capture_io(fn -> CLI.print_error(:invalid_guess) end) ==
+             "Please enter a valid word\n"
   end
 end
