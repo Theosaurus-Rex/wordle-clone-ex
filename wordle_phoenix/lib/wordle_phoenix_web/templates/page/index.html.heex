@@ -1,4 +1,19 @@
+<% game_state = %{
+  secret_word: "start", 
+  max_turns: 6, 
+  turn_status: :continue,
+  guesses:  [[incorrect: "f", partial: "r", incorrect: "u", incorrect: "i", correct: "t"],
+            [partial: "r", incorrect: "e", correct: "a", incorrect: "c", correct: "t"],
+            [incorrect: "m", incorrect: "o", incorrect: "u", partial: "s", incorrect: "e"],
+            [partial: "t", partial: "a", partial: "r", partial: "t", partial: "s"],
+            [partial: "r", incorrect: "o", incorrect: "m", partial: "a", incorrect: "n"],
+            [incorrect: "m", incorrect: "o", incorrect: "u", correct: "r", incorrect: "n"]],
+            remaining_letters: Enum.map(Enum.to_list(?a..?z), fn(n) -> <<n>> end)
+} %>
+
+<% guesses_list = game_state.guesses %>
+
 <section class="bg-gray-700 w-screen h-screen">
-  <%= render "game_board.html", assigns %>
+  <%= render "game_board.html", guesses_list: guesses_list %>
   <%= render "keyboard.html", assigns %>
 </section>

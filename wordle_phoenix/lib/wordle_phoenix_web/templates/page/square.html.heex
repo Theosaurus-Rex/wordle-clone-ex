@@ -1,1 +1,7 @@
-<kbd class="px-5 py-4 border border-slate-400">A</kbd>
+<% {status, letter}=@letter_guess %>
+<% colors=%{
+    correct: "bg-green-500 text-gray-900",
+    partial: "bg-yellow-500 text-gray-900",
+    incorrect: "bg-red-500 text-white"
+} %>
+<kbd class={"px-5 py-4 border border-slate-400 uppercase #{colors[status]}"}><%= letter %></kbd>
