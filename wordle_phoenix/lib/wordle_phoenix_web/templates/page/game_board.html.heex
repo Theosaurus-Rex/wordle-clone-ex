@@ -1,8 +1,16 @@
-<div class="flex flex-col max-w-7xl py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-gray-400 items-center">
-    <%= render "row.html", assigns %>
-    <%= render "row.html", assigns %>
-    <%= render "row.html", assigns %>
-    <%= render "row.html", assigns %>
-    <%= render "row.html", assigns %>
-    <%= render "row.html", assigns %>
-  </div>
+<% guess_chars = String.pad_trailing(@game_state.current_guess, 5) 
+|> String.to_charlist() %>
+<% new_guess = Enum.map(guess_chars, 
+fn 
+32 -> {:initial, raw("&nbsp;")}
+letter -> {:initial, to_string([letter])} 
+end)
+ %>
+
+
+<div class="flex flex-col text-gray-400 items-center pt-12">
+  <%= for word_guess <- @game_state.guesses do %>
+   <%= render "row.html", word_guess: word_guess %> 
+  <% end %>
+  <%= render "row.html", word_guess: new_guess %>
+</div>

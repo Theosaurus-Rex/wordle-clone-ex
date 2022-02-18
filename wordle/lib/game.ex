@@ -8,8 +8,9 @@ defmodule Game do
   defstruct max_turns: 6,
             secret_word: "",
             guesses: [],
-            remaining_letters: Enum.map(Enum.to_list(?a..?z), fn(n) -> <<n>> end),
-            turn_state: :continue
+            remaining_letters: Enum.map(Enum.to_list(?a..?z), fn n -> <<n>> end),
+            turn_state: :continue,
+            current_guess: ""
 
   @type guess_result :: :correct | :incorrect | :partial
   @type letter_guess_result :: {guess_result, binary}
@@ -143,17 +144,22 @@ defmodule Game do
   end
 
   def filter_remainders(game, guess_letters) do
-    updated_remainders = Enum.reduce(guess_letters, game.remaining_letters, fn {status, letter}, acc ->
-      case status do
-        :incorrect ->
-         if Enum.member?(guess_letters, {:correct, letter}) || Enum.member?(guess_letters, {:correct, letter}) do
-           acc
-         else
-          acc -- [letter]
-         end
-        _ -> acc
-      end
-    end)
+    updated_remainders =
+      Enum.reduce(guess_letters, game.remaining_letters, fn {status, letter}, acc ->
+        case status do
+          :incorrect ->
+            if Enum.member?(guess_letters, {:correct, letter}) ||
+                 Enum.member?(guess_letters, {:correct, letter}) do
+              acc
+            else
+              acc -- [letter]
+            end
+
+          _ ->
+            acc
+        end
+      end)
+
     %Game{game | remaining_letters: updated_remainders}
   end
 end

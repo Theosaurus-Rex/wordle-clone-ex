@@ -1,5 +1,3 @@
-<!-- livebook:{"persist_outputs":true} -->
-
 # wordle_ex Notebook
 
 ## Introduction
@@ -12,51 +10,49 @@ This notebook can be run in [Livebook](https://livebook.dev) and provides a live
 
 ## The Guess Module
 
-The Guess module provides the `guess` function for checking a player guess against a secret word. It returns a `word_guess_result` showing the success or otherwise of the guess.
+The Guess module provides a series of functions that take in a player guess and run it through a series of checks against the secret word (initialized at the start of the game) to ascertain whether each letter is correct, in the secret word but in the wrong position, or not in the secret word at all.
+
+The `guess` function takes in two strings - a guess submitted by the player and the secret word stored in the game state. It then passes these strings to the `correct_pass` function, which performs a number of actions:
+
+1. It converts the secret word to a charlist in order to iterate over each letter
 
 ```elixir
-Guess.guess("abc", "def")
+secret_word = "house"
+secret_letter_charlist = String.to_charlist(secret_word)
 ```
 
-<!-- livebook:{"output":true} -->
-
-```
-{[incorrect: "a", incorrect: "b", incorrect: "c"], 'def'}
-```
+1. It converts the player guess into a charlist to be able to iterate over each letter of the input string
 
 ```elixir
-Guess.guess("def", "efd")
+player_guess = "bored"
+player_guess_charlist = String.to_charlist(player_guess)
 ```
 
-<!-- livebook:{"output":true} -->
-
-```
-{[partial: "d", partial: "e", partial: "f"], []}
-```
+1. It calls our `initial_state` helper method on the `secret_word` charlist to create a list of key-value pairs. Each letter is initialised as being `:incorrect` by default, and updates are applied to a letter's state when it passes subsequent checks. Note: the letters are returned as their ASCII codes at this point in time, which we parse later as needed.
 
 ```elixir
-{result, remainders} = Guess.guess("dabc", "dace")
+secret_letter_pairs = Guess.initial_state(secret_letter_charlist)
 ```
 
-<!-- livebook:{"output":true} -->
-
-```
-{[correct: "d", correct: "a", incorrect: "b", partial: "c"], 'e'}
-```
+1. It zips together our list retrieved from our `initial_state` function and our charlist generated from the player's guess. As a result, each letter of the player guess has an equivalent secret letter with a status, which will we now update.
 
 ```elixir
-result
-|> Enum.map(fn {r, _} ->
-  case r do
-    :correct -> "🟩"
-    :partial -> "🟨"
-    _ -> "⬜"
-  end
-end)
+zipped_pairs = Enum.zip(player_guess_charlist, secret_letter_pairs)
 ```
 
-<!-- livebook:{"output":true} -->
+1. It reduces over each of our newly zipped pairs using our `compare_letter` function, which has been declared with two different function heads - one to run when the guess and secret letters are both the same, and one to run in all other cases. In the instance where the two letters are the same, the status of that letter is set to `:correct`. Any letters that haven't been confirmed as correct are left as a charlist in the second item of our output tuple
 
+```elixir
+{correct_pass_result, remainders} =
+  Enum.reduce(zipped_pairs, {[], secret_letter_charlist}, fn {guess_letter,
+                                                              {_status, secret_letter}},
+                                                             {result, remaining_letters} ->
+    Guess.compare_letter(guess_letter, secret_letter, result, remaining_letters)
+  end)
 ```
-["🟩", "🟩", "⬜", "🟨"]
+
+Finally, our `correct_pass` function reverses the first item of the resulting output to maintain the order of the letters in the original word.
+
+```elixir
+{Enum.reverse(correct_pass_result), remainders}
 ```
