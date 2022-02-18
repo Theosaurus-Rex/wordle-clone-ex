@@ -7,6 +7,7 @@ defmodule Guess do
   @type! guess_result :: :correct | :incorrect | :partial
   @type! letter_guess_result :: {guess_result(), binary}
   @type! word_guess_result :: list(letter_guess_result())
+  @type! guess_letter :: ?a..?z
 
   @doc """
     Takes the player's guess and the secret word, and compares each of their characters by pairing them up.
@@ -65,12 +66,12 @@ defmodule Guess do
     {Enum.reverse(result), remainders}
   end
 
-  @spec partial_match(any, any, any, any) :: {nonempty_maybe_improper_list, any}
-  defp partial_match(guess_letter, :correct, remainders, result) do
+  @spec! partial_match(char, guess_result(), charlist, word_guess_result()) :: {list, charlist}
+  def partial_match(guess_letter, :correct, remainders, result) do
     {[{:correct, to_string([guess_letter])} | result], remainders}
   end
 
-  defp partial_match(guess_letter, _, remainders, result) do
+  def partial_match(guess_letter, _, remainders, result) do
     cond do
       Enum.member?(remainders, guess_letter) ->
         {[{:partial, to_string([guess_letter])} | result], remainders -- [guess_letter]}
