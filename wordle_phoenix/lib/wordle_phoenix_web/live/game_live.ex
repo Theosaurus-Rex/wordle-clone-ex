@@ -13,9 +13,11 @@ defmodule WordlePhoenixWeb.GameLive do
             letter -> {:initial, to_string([letter])}
           end)
       %>
-
+            <!-- TODO: Convert input to show up in blank guess row -->
             <input phx-keydown="submit_guess" type="text" minlength="5" maxlength="5"/>
 
+            <!-- TODO: Compartmentalize template code into components -->
+            <!-- TODO: Stop player from guessing if max_guesses reached OR if correct word guessed -->
       <div class="flex flex-col text-gray-400 items-center pt-12">
         <%= for word_guess <- Enum.reverse(@game_state.guesses) do %>
           <div class="inline-block m-5">
@@ -45,12 +47,14 @@ defmodule WordlePhoenixWeb.GameLive do
         </div>
       </div>
     </section>
+    <!-- TODO: Keyboard for mobile users -->
     """
   end
 
+  # TODO: Separate dictionary into appropriate folder (priv)
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :game_state, Game.new("adieu"))}
+    {:ok, assign(socket, :game_state, Game.new())}
   end
 
   def validate_input(word_guess) do
@@ -64,15 +68,16 @@ defmodule WordlePhoenixWeb.GameLive do
   @impl true
   def handle_event("submit_guess", %{"value" => word_guess, "key" => "Enter"}, socket) do
     case validate_input(word_guess) do
-      {:error} -> {:noreply, socket}
-      _ -> {:noreply,
-     assign(socket, :game_state, Game.make_guess(socket.assigns.game_state, word_guess))}
-    end
+      {:error} ->
+        {:noreply, socket}
 
+      _ ->
+        {:noreply,
+         assign(socket, :game_state, Game.make_guess(socket.assigns.game_state, word_guess))}
+    end
   end
 
   def handle_event("submit_guess", _key, socket) do
-    {:noreply,
-     socket}
+    {:noreply, socket}
   end
 end
