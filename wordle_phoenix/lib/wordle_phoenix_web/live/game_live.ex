@@ -13,6 +13,9 @@ defmodule WordlePhoenixWeb.GameLive do
           end)
       %>
 
+
+      <input phx-blur="word_guess" type="text" />
+
       <div class="flex flex-col text-gray-400 items-center pt-12">
         <%= for word_guess <- @game_state.guesses do %>
           <div class="inline-block m-5">
@@ -24,7 +27,7 @@ defmodule WordlePhoenixWeb.GameLive do
                       partial: "bg-yellow-500 text-gray-900",
                       incorrect: "bg-gray-900 text-white"
                   } %>
-                  <kbd class={"rounded-md px-5 py-4 border border-slate-700 uppercase #{colors[status]}"}><%= letter %></kbd>
+                  <kbd phx-click="letter" class={"rounded-md px-5 py-4 border border-slate-700 uppercase #{colors[status]}"}><%= letter %></kbd>
               <% end %>
           </div>
         <% end %>
@@ -48,5 +51,10 @@ defmodule WordlePhoenixWeb.GameLive do
   @impl true
   def mount(_params, _session, socket) do
     {:ok, assign(socket, :game_state, Game.new("adieu"))}
+  end
+
+  def handle_event("word_guess", %{"value" => word_guess}, socket) do
+    {:noreply,
+     assign(socket, :game_state, Game.make_guess(socket.assigns.game_state, word_guess))}
   end
 end
