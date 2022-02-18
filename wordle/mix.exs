@@ -22,6 +22,9 @@ defmodule Wordle.MixProject do
   def deps do
     [
       {:ex_doc, "~> 0.27", only: :dev, runtime: false},
+      {:kino, "~> 0.5.2"},
+      {:type_check, "~> 0.10.0"},
+      {:stream_data, "~> 0.5.0", only: :test},
     ]
   end
 end

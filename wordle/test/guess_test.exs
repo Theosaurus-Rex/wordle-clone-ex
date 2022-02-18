@@ -1,5 +1,9 @@
 defmodule GuessTest do
   use ExUnit.Case
+  use TypeCheck.ExUnit
+
+  spectest Guess
+
   doctest Guess
 
   test "correct guess of one letter word" do

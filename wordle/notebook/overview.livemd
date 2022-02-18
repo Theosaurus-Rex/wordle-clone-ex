@@ -4,6 +4,8 @@
 
 ## Introduction
 
+## Section
+
 wordle_ex is an implementation of the Wordle game in Elixir, developed using TDD(Test Driven Development).
 
 This notebook can be run in [Livebook](https://livebook.dev) and provides a live access to the wordle_ex code. Instructions for connecting this notebook to the project can be found in this [blog post](https://fly.io/blog/livebook-for-app-documentation/).
@@ -19,7 +21,7 @@ Guess.guess("abc", "def")
 <!-- livebook:{"output":true} -->
 
 ```
-[incorrect: "a", incorrect: "b", incorrect: "c"]
+{[incorrect: "a", incorrect: "b", incorrect: "c"], 'def'}
 ```
 
 ```elixir
@@ -29,17 +31,17 @@ Guess.guess("def", "efd")
 <!-- livebook:{"output":true} -->
 
 ```
-[partial: "d", partial: "e", partial: "f"]
+{[partial: "d", partial: "e", partial: "f"], []}
 ```
 
 ```elixir
-result = Guess.guess("abc", "ace")
+{result, remainders} = Guess.guess("dabc", "dace")
 ```
 
 <!-- livebook:{"output":true} -->
 
 ```
-[correct: "a", incorrect: "b", partial: "c"]
+{[correct: "d", correct: "a", incorrect: "b", partial: "c"], 'e'}
 ```
 
 ```elixir
@@ -56,5 +58,5 @@ end)
 <!-- livebook:{"output":true} -->
 
 ```
-["🟩", "⬜", "🟨"]
+["🟩", "🟩", "⬜", "🟨"]
 ```
