@@ -14,7 +14,7 @@ defmodule WordlePhoenixWeb.GameLive do
           end)
       %>
             <!-- TODO: Convert input to show up in blank guess row -->
-            <input phx-keydown="submit_guess" type="text" minlength="5" maxlength="5"/>
+
 
             <!-- TODO: Compartmentalize template code into components -->
       <div class="flex flex-col text-gray-400 items-center pt-12">
@@ -45,7 +45,50 @@ defmodule WordlePhoenixWeb.GameLive do
             <% end %>
         </div>
       </div>
+      <div id="keyboard" class="flex flex-col items-center">
+        <div id="keyboard-top-row" class="m-5">
+          <kbd phx-click="keyboard" phx-value-key="Q" class="bg-gray-400 p-3 rounded-sm">Q</kbd>
+          <kbd phx-click="keyboard" phx-value-key="W" class="bg-gray-400 p-3 rounded-sm">W</kbd>
+          <kbd phx-click="keyboard" phx-value-key="E" class="bg-gray-400 p-3 rounded-sm">E</kbd>
+          <kbd phx-click="keyboard" phx-value-key="R" class="bg-gray-400 p-3 rounded-sm">R</kbd>
+          <kbd phx-click="keyboard" phx-value-key="T" class="bg-gray-400 p-3 rounded-sm">T</kbd>
+          <kbd phx-click="keyboard" phx-value-key="Y" class="bg-gray-400 p-3 rounded-sm">Y</kbd>
+          <kbd phx-click="keyboard" phx-value-key="U" class="bg-gray-400 p-3 rounded-sm">U</kbd>
+          <kbd phx-click="keyboard" phx-value-key="I" class="bg-gray-400 p-3 rounded-sm">I</kbd>
+          <kbd phx-click="keyboard" phx-value-key="O" class="bg-gray-400 p-3 rounded-sm">O</kbd>
+          <kbd phx-click="keyboard" phx-value-key="P" class="bg-gray-400 p-3 rounded-sm">P</kbd>
+        </div>
+        <div id="keyboard-middle-row" class="m-5">
+          <kbd phx-click="keyboard" phx-value-key="A" class="bg-gray-400 p-3 rounded-sm">A</kbd>
+          <kbd phx-click="keyboard" phx-value-key="S" class="bg-gray-400 p-3 rounded-sm">S</kbd>
+          <kbd phx-click="keyboard" phx-value-key="D" class="bg-gray-400 p-3 rounded-sm">D</kbd>
+          <kbd phx-click="keyboard" phx-value-key="F" class="bg-gray-400 p-3 rounded-sm">F</kbd>
+          <kbd phx-click="keyboard" phx-value-key="G" class="bg-gray-400 p-3 rounded-sm">G</kbd>
+          <kbd phx-click="keyboard" phx-value-key="H" class="bg-gray-400 p-3 rounded-sm">H</kbd>
+          <kbd phx-click="keyboard" phx-value-key="J" class="bg-gray-400 p-3 rounded-sm">J</kbd>
+          <kbd phx-click="keyboard" phx-value-key="K" class="bg-gray-400 p-3 rounded-sm">K</kbd>
+          <kbd phx-click="keyboard" phx-value-key="L" class="bg-gray-400 p-3 rounded-sm">L</kbd>
+        </div>
+        <div id="keyboard-bottom-row" class="m-5">
+          <kbd phx-click="keyboard" phx-value-key="Enter" class="bg-gray-400 p-3 rounded-sm">ENTER</kbd>
+          <kbd phx-click="keyboard" phx-value-key="Z" class="bg-gray-400 p-3 rounded-sm">Z</kbd>
+          <kbd phx-click="keyboard" phx-value-key="X" class="bg-gray-400 p-3 rounded-sm">X</kbd>
+          <kbd phx-click="keyboard" phx-value-key="C" class="bg-gray-400 p-3 rounded-sm">C</kbd>
+          <kbd phx-click="keyboard" phx-value-key="V" class="bg-gray-400 p-3 rounded-sm">V</kbd>
+          <kbd phx-click="keyboard" phx-value-key="B" class="bg-gray-400 p-3 rounded-sm">B</kbd>
+          <kbd phx-click="keyboard" phx-value-key="N" class="bg-gray-400 p-3 rounded-sm">N</kbd>
+          <kbd phx-click="keyboard" phx-value-key="M" class="bg-gray-400 p-3 rounded-sm">M</kbd>
+          <kbd phx-click="keyboard" phx-value-key="Back" class="bg-gray-400 p-3 rounded-sm">BACK</kbd>
+        </div>
+        </div>
+
+        <pre>
+          <code>
+            <%= inspect @game_state %>
+          </code>
+        </pre>
     </section>
+
     <!-- TODO: Keyboard for mobile users -->
     """
   end
@@ -72,19 +115,29 @@ defmodule WordlePhoenixWeb.GameLive do
     end
   end
 
-  @impl true
-  def handle_event("submit_guess", %{"value" => word_guess, "key" => "Enter"}, socket) do
-    case validate_input(word_guess) do
+  def submit_guess(game, socket) do
+    case validate_input(game.current_guess) do
       {:error} ->
         {:noreply, socket}
 
       _ ->
         {:noreply,
-         assign(socket, :game_state, Game.make_guess(socket.assigns.game_state, word_guess))}
+         assign(socket, :game_state, Game.make_guess(game, game.current_guess))}
     end
   end
 
+  @impl true
   def handle_event("submit_guess", _key, socket) do
     {:noreply, socket}
+  end
+
+  def handle_event("keyboard", %{ "key" => key}, socket) do
+    game = socket.assigns.game_state
+    case key do
+      "Back" -> {:noreply, socket}
+      "Enter" -> submit_guess(game, socket)
+      letter ->  {:noreply,
+      assign(socket, :game_state, Game.add_letter(game, String.downcase(letter)))}
+    end
   end
 end
