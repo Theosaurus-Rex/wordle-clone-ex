@@ -17,7 +17,6 @@ defmodule WordlePhoenixWeb.GameLive do
             <input phx-keydown="submit_guess" type="text" minlength="5" maxlength="5"/>
 
             <!-- TODO: Compartmentalize template code into components -->
-            <!-- TODO: Stop player from guessing if max_guesses reached OR if correct word guessed -->
       <div class="flex flex-col text-gray-400 items-center pt-12">
         <%= for word_guess <- Enum.reverse(@game_state.guesses) do %>
           <div class="inline-block m-5">
@@ -51,7 +50,6 @@ defmodule WordlePhoenixWeb.GameLive do
     """
   end
 
-  # TODO: Separate dictionary into appropriate folder (priv)
   @impl true
   def mount(_params, _session, socket) do
     {:ok, assign(socket, :game_state, Game.new())}
@@ -62,6 +60,15 @@ defmodule WordlePhoenixWeb.GameLive do
       {:error}
     else
       {:ok}
+    end
+  end
+
+  # TODO: Stop player from guessing if max_guesses reached OR if correct word guessed
+  def check_guesses(game, guesses) do
+    if length(guesses) >= game.max_turns do
+      {:lose}
+    else
+      {:continue}
     end
   end
 
