@@ -1,15 +1,17 @@
 <% game_state = %{
   current_guess: "cat",
-  secret_word: "start", 
-  max_turns: 6, 
+  secret_word: "start",
+  max_turns: 6,
   turn_status: :continue,
   guesses:  [[incorrect: "f", partial: "r", incorrect: "u", incorrect: "i", correct: "t"],
             [partial: "r", incorrect: "e", correct: "a", incorrect: "c", correct: "t"],
             [incorrect: "m", incorrect: "o", incorrect: "u", partial: "s", incorrect: "e"],
             [partial: "t", partial: "a", partial: "r", partial: "t", partial: "s"],
             [partial: "r", incorrect: "o", incorrect: "m", partial: "a", incorrect: "n"]],
-            remaining_letters: Enum.map(Enum.to_list(?a..?z), fn(n) -> <<n>> end)
+  remaining_letters: Enum.map(Enum.to_list(?a..?z), fn(n) -> <<n>> end)
 } %>
+
+<h1>Dead view</h1>
 
 <section class="bg-gray-700 w-screen h-screen">
   <%= render "game_board.html", game_state: game_state %>

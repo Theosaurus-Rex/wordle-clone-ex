@@ -18,7 +18,9 @@ defmodule WordlePhoenixWeb.Router do
   scope "/", WordlePhoenixWeb do
     pipe_through(:browser)
 
-    get("/", PageController, :index)
+    get("/dead-wordle", PageController, :index)
+
+    live("/", GameLive)
   end
 
   # Other scopes may use custom stacks.
