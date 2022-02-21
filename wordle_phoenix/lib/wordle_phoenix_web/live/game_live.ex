@@ -1,5 +1,24 @@
 defmodule WordlePhoenixWeb.GameLive do
   use WordlePhoenixWeb, :live_view
+  use Phoenix.Component
+
+  # Optionally also bring the HTML helpers
+  # use Phoenix.HTML
+
+  @colors %{
+    initial: "bg-gray-800 text-white",
+    correct: "bg-green-500 text-gray-900",
+    partial: "bg-yellow-500 text-gray-900",
+    incorrect: "bg-gray-900 text-white"
+  }
+
+  def square(assigns = %{letter_guess: {status, letter}}) do
+    color_classes = @colors[status]
+
+    ~H"""
+    <kbd class={"rounded-md px-5 py-4 border border-slate-700 uppercase #{color_classes}"}><%= letter %></kbd>
+    """
+  end
 
   @impl true
   def render(assigns) do
@@ -21,27 +40,13 @@ defmodule WordlePhoenixWeb.GameLive do
         <%= for word_guess <- Enum.reverse(@game_state.guesses) do %>
           <div class="inline-block m-5">
               <%= for letter_guess <- word_guess do %>
-                  <% {status, letter} = letter_guess %>
-                  <% colors=%{
-                      initial: "bg-gray-800 text-white",
-                      correct: "bg-green-500 text-gray-900",
-                      partial: "bg-yellow-500 text-gray-900",
-                      incorrect: "bg-gray-900 text-white"
-                  } %>
-                  <kbd class={"rounded-md px-5 py-4 border border-slate-700 uppercase #{colors[status]}"}><%= letter %></kbd>
+                <.square letter_guess={letter_guess} />
               <% end %>
           </div>
         <% end %>
         <div class="inline-block m-5">
             <%= for letter_guess <- new_guess do %>
-                  <% {status, letter} = letter_guess %>
-                  <% colors=%{
-                      initial: "bg-gray-800 text-white",
-                      correct: "bg-green-500 text-gray-900",
-                      partial: "bg-yellow-500 text-gray-900",
-                      incorrect: "bg-gray-900 text-white"
-                  } %>
-                  <kbd class={"rounded-md px-5 py-4 border border-slate-700 uppercase #{colors[status]}"}><%= letter %></kbd>
+                <.square letter_guess={letter_guess} />
             <% end %>
         </div>
       </div>
