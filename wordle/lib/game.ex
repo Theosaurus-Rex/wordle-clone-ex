@@ -46,8 +46,13 @@ defmodule Game do
     set_secret(game, secret_word)
   end
 
-  def add_letter(game, letter) do
-    %Game{game | current_guess: game.current_guess <> letter}
+  def add_letter(%Game{current_guess: current_guess, secret_word: secret_word} = game, letter) do
+    updated_guess =
+      if String.length(current_guess) == String.length(secret_word),
+        do: game.current_guess,
+        else: game.current_guess <> String.at(letter, 0)
+
+    %Game{game | current_guess: updated_guess}
   end
 
   def remove_letter(game = %Game{current_guess: current_guess}) do

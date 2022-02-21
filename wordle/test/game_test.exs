@@ -6,10 +6,69 @@ defmodule GameTest do
     assert game == %Game{secret_word: "steps"}
   end
 
-  test "new function sets secret word from dictionary" do
-    dictionary = ["stone"]
-    game = Game.new(Enum.random(dictionary))
-    assert Enum.member?(dictionary, game.secret_word)
+  # TODO ability to set dictionary per game
+  # test "new function sets secret word from dictionary" do
+  #   dictionary = ["stone"]
+  #   game = Game.new(dictionary: dictionary)
+  #   assert Enum.member?(dictionary, game.secret_word)
+  # end
+
+  describe "assemble current guess with individual letters" do
+    test "new game has no current guess" do
+      assert %Game{current_guess: ""} = Game.new("steps")
+    end
+
+    test "add letter to new game" do
+      game =
+        Game.new("steps")
+        |> Game.add_letter("a")
+
+      assert %Game{current_guess: "a"} = game
+    end
+
+    test "can't remove letter if there aren't any" do
+      game =
+        Game.new("steps")
+        |> Game.remove_letter()
+
+      assert %Game{current_guess: ""} = game
+    end
+
+    test "can remove letter" do
+      game =
+        Game.new("steps")
+        |> Game.add_letter("x")
+        |> Game.add_letter("y")
+
+      assert %Game{current_guess: "xy"} = game
+
+      game =
+        game
+        |> Game.remove_letter()
+
+      assert %Game{current_guess: "x"} = game
+    end
+
+    test "can't add more letters than 5" do
+      game =
+        Game.new("steps")
+        |> Game.add_letter("x")
+        |> Game.add_letter("y")
+        |> Game.add_letter("z")
+        |> Game.add_letter("a")
+        |> Game.add_letter("b")
+        |> Game.add_letter("?")
+
+      assert %Game{current_guess: "xyzab"} = game
+    end
+
+    test "can't add more than 1 letter at a time" do
+      game =
+        Game.new("steps")
+        |> Game.add_letter("xy")
+
+      assert %Game{current_guess: "x"} = game
+    end
   end
 
   test "the player guess is added to guesses list" do
@@ -19,23 +78,26 @@ defmodule GameTest do
   end
 
   test "displays game over message if maximum number of turns is reached" do
-    game = Game.new("cat")
-
     game =
-      Enum.reduce(1..6, game, fn _, acc ->
-        Game.make_guess(acc, "dog")
-      end)
+      Game.new("cat")
+      |> Game.make_guess("dog")
+      |> Game.make_guess("bat")
+      |> Game.make_guess("toe")
+      |> Game.make_guess("fee")
+      |> Game.make_guess("tee")
+      |> Game.make_guess("ten")
 
     assert game.turn_state == :lose
   end
 
   test "check if there are turns remaining to keep running the game" do
-    game = Game.new("cat")
-
     game =
-      Enum.reduce(1..5, game, fn _, acc ->
-        Game.make_guess(acc, "dog")
-      end)
+      Game.new("cat")
+      |> Game.make_guess("dog")
+      |> Game.make_guess("bat")
+      |> Game.make_guess("toe")
+      |> Game.make_guess("fee")
+      |> Game.make_guess("tee")
 
     assert game.turn_state == :continue
   end
@@ -145,9 +207,15 @@ defmodule GameTest do
   test "filter_remainders removes incorrect letters guesses from game state" do
     game = Game.new("house")
 
-    assert Game.filter_remainders(game, [incorrect: "g", incorrect: "r", partial: "o", partial: "u", incorrect: "t"]) == %Game{
-      secret_word: "house",
-      remaining_letters: [
+    assert Game.filter_remainders(game,
+             incorrect: "g",
+             incorrect: "r",
+             partial: "o",
+             partial: "u",
+             incorrect: "t"
+           ) == %Game{
+             secret_word: "house",
+             remaining_letters: [
                "a",
                "b",
                "c",
