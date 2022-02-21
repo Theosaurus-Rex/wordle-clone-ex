@@ -10,12 +10,14 @@ defmodule Dictionary do
   end
 
   defp secret_dictionary do
-    File.read!('lib/dictionary/wordle-answers-alphabetical.txt')
+    Application.app_dir(:wordle, "priv/dictionary/wordle-answers-alphabetical.txt")
+    |> File.read!()
     |> String.split("\n", trim: true)
   end
 
   defp guess_dictionary do
-    File.read!('lib/dictionary/wordle-allowed-guesses.txt')
+    Application.app_dir(:wordle, "priv/dictionary/wordle-allowed-guesses.txt")
+    |> File.read!()
     |> String.split("\n", trim: true)
   end
 end

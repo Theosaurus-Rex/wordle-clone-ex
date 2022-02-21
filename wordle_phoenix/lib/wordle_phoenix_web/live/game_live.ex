@@ -82,8 +82,8 @@ defmodule WordlePhoenixWeb.GameLive do
         </div>
         </div>
 
-        <pre>
-          <code>
+        <pre class="prose">
+          <code class="xxxxlanguage-elixir">
             <%= inspect @game_state %>
           </code>
         </pre>
@@ -121,8 +121,7 @@ defmodule WordlePhoenixWeb.GameLive do
         {:noreply, socket}
 
       _ ->
-        {:noreply,
-         assign(socket, :game_state, Game.make_guess(game, game.current_guess))}
+        {:noreply, assign(socket, :game_state, Game.make_guess(game, game.current_guess))}
     end
   end
 
@@ -131,13 +130,18 @@ defmodule WordlePhoenixWeb.GameLive do
     {:noreply, socket}
   end
 
-  def handle_event("keyboard", %{ "key" => key}, socket) do
+  def handle_event("keyboard", %{"key" => key}, socket) do
     game = socket.assigns.game_state
+
     case key do
-      "Back" -> {:noreply, socket}
-      "Enter" -> submit_guess(game, socket)
-      letter ->  {:noreply,
-      assign(socket, :game_state, Game.add_letter(game, String.downcase(letter)))}
+      "Back" ->
+        {:noreply, assign(socket, :game_state, Game.remove_letter(game))}
+
+      "Enter" ->
+        submit_guess(game, socket)
+
+      letter ->
+        {:noreply, assign(socket, :game_state, Game.add_letter(game, String.downcase(letter)))}
     end
   end
 end

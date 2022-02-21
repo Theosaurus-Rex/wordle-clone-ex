@@ -46,6 +46,19 @@ defmodule Game do
     set_secret(game, secret_word)
   end
 
+  def add_letter(game, letter) do
+    %Game{game | current_guess: game.current_guess <> letter}
+  end
+
+  def remove_letter(game = %Game{current_guess: current_guess}) do
+    updated_guess =
+      if current_guess == "",
+        do: "",
+        else: String.trim_trailing(current_guess, String.at(current_guess, -1))
+
+    %Game{game | current_guess: updated_guess}
+  end
+
   @doc """
     Returns a random word from the dictionary and sets it as the secret word for the current Game instance.
 
@@ -95,7 +108,7 @@ defmodule Game do
     {guess_result, _remainders} = Guess.guess(player_guess, game.secret_word)
     updated_game = filter_remainders(game, guess_result)
 
-    %Game{updated_game | guesses: [guess_result] ++ game.guesses}
+    %Game{updated_game | current_guess: "", guesses: [guess_result | game.guesses]}
     |> turn_result()
   end
 
