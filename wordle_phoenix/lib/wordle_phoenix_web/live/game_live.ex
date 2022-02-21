@@ -80,13 +80,16 @@ defmodule WordlePhoenixWeb.GameLive do
           <kbd phx-click="keyboard" phx-value-key="M" class="bg-gray-400 p-3 rounded-sm">M</kbd>
           <kbd phx-click="keyboard" phx-value-key="Back" class="bg-gray-400 p-3 rounded-sm">BACK</kbd>
         </div>
-        </div>
+      </div>
 
-        <pre class="prose">
-          <code class="xxxxlanguage-elixir">
-            <%= inspect @game_state %>
+      <div class="flex flex-col items-center pt-12">
+        <div class="prose">
+        <pre class="">
+          <code>
+            <%= Code.format_string!(inspect(@game_state)) %>
           </code>
         </pre>
+      </div></div>
     </section>
 
     <!-- TODO: Keyboard for mobile users -->
