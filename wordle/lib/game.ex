@@ -109,8 +109,13 @@ defmodule Game do
   end
 
   @spec make_guess(%Game{}, binary) :: %Game{}
-  def make_guess(game, player_guess) do
-    {guess_result, _remainders} = Guess.guess(player_guess, game.secret_word)
+  def make_guess(game, guess) do
+    make_guess(%Game{game | current_guess: guess})
+  end
+
+  @spec make_guess(%Game{}) :: %Game{}
+  def make_guess(game) do
+    {guess_result, _remainders} = Guess.guess(game.current_guess, game.secret_word)
     updated_game = filter_remainders(game, guess_result)
 
     %Game{updated_game | current_guess: "", guesses: [guess_result | game.guesses]}
@@ -140,7 +145,6 @@ defmodule Game do
       }
   """
   @spec turn_result(%Game{}) :: %Game{}
-
   def turn_result(%Game{guesses: _guesses} = game) do
     cond do
       correct_guess(game) -> %Game{game | turn_state: :win}

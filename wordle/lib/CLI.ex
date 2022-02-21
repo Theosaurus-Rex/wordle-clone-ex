@@ -6,19 +6,20 @@ defmodule CLI do
   end
 
   def turn(game) do
-    {_status, guess} = get_player_guess(game)
-    submit_guess(game, guess)
+    {_status, player_guess} = get_player_guess(game)
+    submit_guess(game, player_guess)
   end
 
   def get_player_guess(game) do
     guess = get_player_input()
     validate_guess(game, guess)
   end
+
   @doc """
     Asks the player for their guess and takes their input via the keyboard. Then, it calls the guess method on the player's input and make's the guess to the list of guesses stored in the current game's state.
   """
   def get_player_input(io \\ IO) do
-   String.trim(io.gets("Enter your guess:\n"))
+    String.trim(io.gets("Enter your guess:\n"))
   end
 
   def validate_guess(game, guess) do

@@ -105,8 +105,10 @@ defmodule GameTest do
   end
 
   test "the player guess is added to guesses list" do
-    game = Game.new("cat")
-    game = Game.make_guess(game, "dog")
+    game =
+      Game.new("cat")
+      |> Game.make_guess("dog")
+
     assert Enum.member?(game.guesses, incorrect: "d", incorrect: "o", incorrect: "g")
   end
 

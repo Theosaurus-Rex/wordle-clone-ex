@@ -2,6 +2,11 @@
              [{applications,[kernel,stdlib,elixir,logger]},
               {description,"wordle"},
               {modules,['Elixir.CLI','Elixir.Dictionary','Elixir.FakeIO',
-                        'Elixir.Game','Elixir.Guess']},
+                        'Elixir.Game','Elixir.Guess','Elixir.Wordle',
+                        'Elixir.Wordle.Command',
+                        'Elixir.Wordle.Command.AddLetter',
+                        'Elixir.Wordle.Command.CreateGame',
+                        'Elixir.Wordle.Command.MakeGuess',
+                        'Elixir.Wordle.Command.RemoveLetter']},
               {registered,[]},
               {vsn,"0.1.0"}]}.
