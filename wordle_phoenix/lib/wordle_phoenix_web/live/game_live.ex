@@ -5,8 +5,17 @@ defmodule WordlePhoenixWeb.GameLive do
   # Optionally also bring the HTML helpers
   # use Phoenix.HTML
 
+  @debug true
+
   @colors %{
     initial: "bg-gray-800 text-white",
+    correct: "bg-green-500 text-gray-900",
+    partial: "bg-yellow-500 text-gray-900",
+    incorrect: "bg-gray-900 text-white"
+  }
+
+  @keyboard_colors %{
+    initial: "bg-gray-400 text-white",
     correct: "bg-green-500 text-gray-900",
     partial: "bg-yellow-500 text-gray-900",
     incorrect: "bg-gray-900 text-white"
@@ -20,84 +29,99 @@ defmodule WordlePhoenixWeb.GameLive do
     """
   end
 
-  @impl true
-  def render(assigns) do
+  def row(assigns) do
     ~H"""
-    <section class="bg-gray-700 w-screen h-screen">
-      <%
-        guess_chars = String.pad_trailing(@game_state.current_guess, 5) |> String.to_charlist()
-        new_guess = Enum.map(guess_chars,
-          fn
-            32 -> {:initial, raw("&nbsp;")}
-            letter -> {:initial, to_string([letter])}
-          end)
-      %>
-            <!-- TODO: Convert input to show up in blank guess row -->
+    <div class="inline-block m-5">
+      <%= for letter_guess <- @word_guess do %>
+        <.square letter_guess={letter_guess} />
+      <% end %>
+    </div>
+    """
+  end
 
+  def keyboard_key(assigns) do
+    status =
+      if String.length(assigns.value) == 1 && assigns.value not in assigns.remaining_letters,
+        do: :incorrect,
+        else: :initial
 
-            <!-- TODO: Compartmentalize template code into components -->
-      <div class="flex flex-col text-gray-400 items-center pt-12">
-        <%= for word_guess <- Enum.reverse(@game_state.guesses) do %>
-          <div class="inline-block m-5">
-              <%= for letter_guess <- word_guess do %>
-                <.square letter_guess={letter_guess} />
-              <% end %>
-          </div>
-        <% end %>
-        <div class="inline-block m-5">
-            <%= for letter_guess <- new_guess do %>
-                <.square letter_guess={letter_guess} />
-            <% end %>
-        </div>
-      </div>
-      <div id="keyboard" class="flex flex-col items-center">
-        <div id="keyboard-top-row" class="m-5">
-          <kbd phx-click="keyboard" phx-value-key="Q" class="bg-gray-400 p-3 rounded-sm">Q</kbd>
-          <kbd phx-click="keyboard" phx-value-key="W" class="bg-gray-400 p-3 rounded-sm">W</kbd>
-          <kbd phx-click="keyboard" phx-value-key="E" class="bg-gray-400 p-3 rounded-sm">E</kbd>
-          <kbd phx-click="keyboard" phx-value-key="R" class="bg-gray-400 p-3 rounded-sm">R</kbd>
-          <kbd phx-click="keyboard" phx-value-key="T" class="bg-gray-400 p-3 rounded-sm">T</kbd>
-          <kbd phx-click="keyboard" phx-value-key="Y" class="bg-gray-400 p-3 rounded-sm">Y</kbd>
-          <kbd phx-click="keyboard" phx-value-key="U" class="bg-gray-400 p-3 rounded-sm">U</kbd>
-          <kbd phx-click="keyboard" phx-value-key="I" class="bg-gray-400 p-3 rounded-sm">I</kbd>
-          <kbd phx-click="keyboard" phx-value-key="O" class="bg-gray-400 p-3 rounded-sm">O</kbd>
-          <kbd phx-click="keyboard" phx-value-key="P" class="bg-gray-400 p-3 rounded-sm">P</kbd>
-        </div>
-        <div id="keyboard-middle-row" class="m-5">
-          <kbd phx-click="keyboard" phx-value-key="A" class="bg-gray-400 p-3 rounded-sm">A</kbd>
-          <kbd phx-click="keyboard" phx-value-key="S" class="bg-gray-400 p-3 rounded-sm">S</kbd>
-          <kbd phx-click="keyboard" phx-value-key="D" class="bg-gray-400 p-3 rounded-sm">D</kbd>
-          <kbd phx-click="keyboard" phx-value-key="F" class="bg-gray-400 p-3 rounded-sm">F</kbd>
-          <kbd phx-click="keyboard" phx-value-key="G" class="bg-gray-400 p-3 rounded-sm">G</kbd>
-          <kbd phx-click="keyboard" phx-value-key="H" class="bg-gray-400 p-3 rounded-sm">H</kbd>
-          <kbd phx-click="keyboard" phx-value-key="J" class="bg-gray-400 p-3 rounded-sm">J</kbd>
-          <kbd phx-click="keyboard" phx-value-key="K" class="bg-gray-400 p-3 rounded-sm">K</kbd>
-          <kbd phx-click="keyboard" phx-value-key="L" class="bg-gray-400 p-3 rounded-sm">L</kbd>
-        </div>
-        <div id="keyboard-bottom-row" class="m-5">
-          <kbd phx-click="keyboard" phx-value-key="Enter" class="bg-gray-400 p-3 rounded-sm">ENTER</kbd>
-          <kbd phx-click="keyboard" phx-value-key="Z" class="bg-gray-400 p-3 rounded-sm">Z</kbd>
-          <kbd phx-click="keyboard" phx-value-key="X" class="bg-gray-400 p-3 rounded-sm">X</kbd>
-          <kbd phx-click="keyboard" phx-value-key="C" class="bg-gray-400 p-3 rounded-sm">C</kbd>
-          <kbd phx-click="keyboard" phx-value-key="V" class="bg-gray-400 p-3 rounded-sm">V</kbd>
-          <kbd phx-click="keyboard" phx-value-key="B" class="bg-gray-400 p-3 rounded-sm">B</kbd>
-          <kbd phx-click="keyboard" phx-value-key="N" class="bg-gray-400 p-3 rounded-sm">N</kbd>
-          <kbd phx-click="keyboard" phx-value-key="M" class="bg-gray-400 p-3 rounded-sm">M</kbd>
-          <kbd phx-click="keyboard" phx-value-key="Back" class="bg-gray-400 p-3 rounded-sm">BACK</kbd>
-        </div>
-      </div>
+    color_classes = @keyboard_colors[status]
 
+    ~H"""
+    <kbd
+      phx-click="keyboard"
+      phx-value-key={@value}
+      class={"#{color_classes} p-4 rounded-md uppercase"}><%= @label %></kbd>
+    """
+  end
+
+  def keyboard_row(assigns) do
+    ~H"""
+    <div class="m-5">
+      <%= for {value, label} <- @key_values do %>
+        <.keyboard_key value={value} label={label} remaining_letters={@remaining_letters} />
+      <% end %>
+    </div>
+    """
+  end
+
+  def keyboard(assigns) do
+    ~H"""
+    <div id="keyboard" class="flex flex-col items-center mt-24">
+      <.keyboard_row remaining_letters={@remaining_letters} key_values={letters_to_key_values("qwertyuiop")} />
+      <.keyboard_row remaining_letters={@remaining_letters} key_values={letters_to_key_values("asdfghjkl")} />
+      <.keyboard_row remaining_letters={@remaining_letters} key_values={[{"Back", "Back"}] ++ letters_to_key_values("zxcvbnm") ++ [{"Enter", "Enter"}]} />
+    </div>
+    """
+  end
+
+  def game_state(assigns) do
+    if @debug do
+      ~H"""
       <div class="flex flex-col items-center pt-12">
         <div class="prose">
-        <pre class="">
-          <code>
+          <pre><code>
             <%= Code.format_string!(inspect(@game_state)) %>
-          </code>
-        </pre>
-      </div></div>
-    </section>
+          </code></pre>
+        </div>
+      </div>
+      """
+    else
+      ~H"""
+      """
+    end
+  end
 
-    <!-- TODO: Keyboard for mobile users -->
+  def letters_to_key_values(letters) do
+    letters
+    |> String.split("", trim: true)
+    |> Enum.map(fn letter -> {letter, letter} end)
+  end
+
+  @impl true
+  def render(assigns) do
+    new_guess =
+      assigns.game_state.current_guess
+      |> String.pad_trailing(5)
+      |> String.to_charlist()
+      |> Enum.map(fn
+        32 -> {:initial, raw("&nbsp;")}
+        letter -> {:initial, to_string([letter])}
+      end)
+
+    ~H"""
+    <section class="bg-gray-700 w-screen h-screen">
+      <div class="flex flex-col text-gray-400 items-center pt-12">
+        <%= for word_guess <- Enum.reverse(@game_state.guesses) do %>
+          <.row word_guess={word_guess} />
+        <% end %>
+        <.row word_guess={new_guess} />
+      </div>
+
+      <.keyboard remaining_letters={@game_state.remaining_letters} />
+
+      <.game_state game_state={@game_state} />
+    </section>
     """
   end
 
