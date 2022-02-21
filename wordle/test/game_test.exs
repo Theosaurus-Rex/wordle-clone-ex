@@ -49,6 +49,39 @@ defmodule GameTest do
       assert %Game{current_guess: "x"} = game
     end
 
+    test "can remove multiple letters" do
+      game =
+        Game.new("steps")
+        |> Game.add_letter("x")
+        |> Game.add_letter("y")
+        |> Game.add_letter("z")
+
+      assert %Game{current_guess: "xyz"} = game
+
+      game =
+        game
+        |> Game.remove_letter()
+        |> Game.remove_letter()
+
+      assert %Game{current_guess: "x"} = game
+    end
+
+    test "only remove one letter at a time" do
+      game =
+        Game.new("steps")
+        |> Game.add_letter("x")
+        |> Game.add_letter("x")
+        |> Game.add_letter("x")
+
+      assert %Game{current_guess: "xxx"} = game
+
+      game =
+        game
+        |> Game.remove_letter()
+
+      assert %Game{current_guess: "xx"} = game
+    end
+
     test "can't add more letters than 5" do
       game =
         Game.new("steps")
