@@ -5,17 +5,14 @@ defmodule WordlePhoenixWeb.GameLive do
   # Optionally also bring the HTML helpers
   # use Phoenix.HTML
 
+  @letters Enum.to_list(?a..?z) ++ Enum.to_list(?A..?Z)
+  |> to_string
+  |> String.split("", trim: true)
+
   @debug true
 
   @colors %{
     initial: "bg-gray-800 text-white",
-    correct: "bg-green-500 text-gray-900",
-    partial: "bg-yellow-500 text-gray-900",
-    incorrect: "bg-gray-900 text-white"
-  }
-
-  @keyboard_colors %{
-    initial: "bg-gray-400 text-white",
     correct: "bg-green-500 text-gray-900",
     partial: "bg-yellow-500 text-gray-900",
     incorrect: "bg-gray-900 text-white"
@@ -39,42 +36,6 @@ defmodule WordlePhoenixWeb.GameLive do
     """
   end
 
-  def keyboard_key(assigns) do
-    status =
-      if String.length(assigns.value) == 1 && assigns.value not in assigns.remaining_letters,
-        do: :incorrect,
-        else: :initial
-
-    color_classes = @keyboard_colors[status]
-
-    ~H"""
-    <kbd
-      phx-click="keyboard"
-      phx-value-key={@value}
-      class={"#{color_classes} p-4 rounded-md uppercase"}><%= @label %></kbd>
-    """
-  end
-
-  def keyboard_row(assigns) do
-    ~H"""
-    <div class="m-5">
-      <%= for {value, label} <- @key_values do %>
-        <.keyboard_key value={value} label={label} remaining_letters={@remaining_letters} />
-      <% end %>
-    </div>
-    """
-  end
-
-  def keyboard(assigns) do
-    ~H"""
-    <div id="keyboard" class="flex flex-col items-center mt-24">
-      <.keyboard_row remaining_letters={@remaining_letters} key_values={letters_to_key_values("qwertyuiop")} />
-      <.keyboard_row remaining_letters={@remaining_letters} key_values={letters_to_key_values("asdfghjkl")} />
-      <.keyboard_row remaining_letters={@remaining_letters} key_values={[{"Back", "Back"}] ++ letters_to_key_values("zxcvbnm") ++ [{"Enter", "Enter"}]} />
-    </div>
-    """
-  end
-
   def game_state(assigns) do
     if @debug do
       ~H"""
@@ -90,12 +51,6 @@ defmodule WordlePhoenixWeb.GameLive do
       ~H"""
       """
     end
-  end
-
-  def letters_to_key_values(letters) do
-    letters
-    |> String.split("", trim: true)
-    |> Enum.map(fn letter -> {letter, letter} end)
   end
 
   @impl true
@@ -118,7 +73,7 @@ defmodule WordlePhoenixWeb.GameLive do
         <.row word_guess={new_guess} />
       </div>
 
-      <.keyboard remaining_letters={@game_state.remaining_letters} />
+      <Wordle.Keyboard.keyboard remaining_letters={@game_state.remaining_letters} />
 
       <.game_state game_state={@game_state} />
     </section>
@@ -157,23 +112,21 @@ defmodule WordlePhoenixWeb.GameLive do
     end
   end
 
-  @impl true
-  def handle_event("submit_guess", _key, socket) do
-    {:noreply, socket}
-  end
-
   def handle_event("keyboard", %{"key" => key}, socket) do
     game = socket.assigns.game_state
 
     case key do
-      "Back" ->
+      "Backspace" ->
         {:noreply, assign(socket, :game_state, Game.remove_letter(game))}
 
       "Enter" ->
         submit_guess(game, socket)
 
-      letter ->
+      letter when letter in @letters ->
         {:noreply, assign(socket, :game_state, Game.add_letter(game, String.downcase(letter)))}
+
+      _ ->
+        {:noreply, socket}
     end
   end
 end
