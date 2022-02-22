@@ -104,139 +104,91 @@ defmodule GameTest do
     end
   end
 
-  test "the player guess is added to guesses list" do
-    game =
-      Game.new("cat")
-      |> Game.make_guess("dog")
+  describe "make guess" do
+    test "the player guess is added to guesses list" do
+      game =
+        Game.new("cat")
+        |> Game.make_guess("dog")
 
-    assert Enum.member?(game.guesses, incorrect: "d", incorrect: "o", incorrect: "g")
+      assert Enum.member?(game.guesses, incorrect: "d", incorrect: "o", incorrect: "g")
+    end
+
+    test "lose if maximum number of turns is reached" do
+      game =
+        Game.new("cat")
+        |> Game.make_guess("dog")
+        |> Game.make_guess("bat")
+        |> Game.make_guess("toe")
+        |> Game.make_guess("fee")
+        |> Game.make_guess("tee")
+        |> Game.make_guess("ten")
+
+      assert game.turn_state == :lose
+    end
+
+    test "check if there are turns remaining to keep running the game" do
+      game =
+        Game.new("cat")
+        |> Game.make_guess("dog")
+        |> Game.make_guess("bat")
+        |> Game.make_guess("toe")
+        |> Game.make_guess("fee")
+        |> Game.make_guess("tee")
+
+      assert game.turn_state == :continue
+      assert Game.check_loss(game) == false
+    end
+
+    test "game ends when player guesses the secret word" do
+      game = Game.new("dog")
+      game = Game.make_guess(game, "dog")
+      assert game.turn_state == :win
+    end
+
+    test "check if last player guess is correct" do
+      game = Game.new("dog")
+      game = Game.make_guess(game, "dog")
+      assert Game.correct_guess(game) == true
+    end
+
+    test "check if last player guess is incorrect" do
+      game = Game.new("cat")
+      game = Game.make_guess(game, "dog")
+      assert Game.correct_guess(game) == false
+    end
+
+    test "check if last player guess has a partially correct letter" do
+      game = Game.new("cat")
+      game = Game.make_guess(game, "rat")
+      assert Game.correct_guess(game) == false
+    end
+
+    test "check loss state if player has not taken any turns" do
+      game = Game.new("stone")
+      assert Game.check_loss(game) == false
+    end
   end
 
-  test "displays game over message if maximum number of turns is reached" do
-    game =
-      Game.new("cat")
-      |> Game.make_guess("dog")
-      |> Game.make_guess("bat")
-      |> Game.make_guess("toe")
-      |> Game.make_guess("fee")
-      |> Game.make_guess("tee")
-      |> Game.make_guess("ten")
+  describe "guess_valid?" do
+    test "returns ok when a valid guess is entered" do
+      game = Game.new("frogs")
+      assert Game.guess_valid?(game, "frogs") == {:ok, "frogs"}
+    end
 
-    assert game.turn_state == :lose
-  end
+    test "returns error when a guess is too long" do
+      game = Game.new("frogs")
+      assert Game.guess_valid?(game, "tadpoles") == {:error, :guess_too_long}
+    end
 
-  test "check if there are turns remaining to keep running the game" do
-    game =
-      Game.new("cat")
-      |> Game.make_guess("dog")
-      |> Game.make_guess("bat")
-      |> Game.make_guess("toe")
-      |> Game.make_guess("fee")
-      |> Game.make_guess("tee")
+    test "returns error when a guess is too short" do
+      game = Game.new("frogs")
+      assert Game.guess_valid?(game, "egg") == {:error, :guess_too_short}
+    end
 
-    assert game.turn_state == :continue
-  end
-
-  test "game ends when player guesses the secret word" do
-    game = Game.new("dog")
-    game = Game.make_guess(game, "dog")
-    assert game.turn_state == :win
-  end
-
-  test "check if last player guess is correct" do
-    game = Game.new("dog")
-    game = Game.make_guess(game, "dog")
-    assert Game.correct_guess(game) == true
-  end
-
-  test "check if last player guess is incorrect" do
-    game = Game.new("cat")
-    game = Game.make_guess(game, "dog")
-    assert Game.correct_guess(game) == false
-  end
-
-  test "check if last player guess has a partially correct letter" do
-    game = Game.new("cat")
-    game = Game.make_guess(game, "rat")
-    assert Game.correct_guess(game) == false
-  end
-
-  test "check if player has lost at 6 turns" do
-    game = Game.new("cat")
-
-    game =
-      Enum.reduce(1..6, game, fn _, acc ->
-        Game.make_guess(acc, "dog")
-      end)
-
-    assert Game.check_loss(game) == true
-  end
-
-  test "check loss state if player has not taken any turns" do
-    game = Game.new("stone")
-    assert Game.check_loss(game) == false
-  end
-
-  test "check if player has turns remaining mid-game" do
-    game = Game.new("cat")
-
-    game =
-      Enum.reduce(1..3, game, fn _, acc ->
-        Game.make_guess(acc, "dog")
-      end)
-
-    assert Game.check_loss(game) == false
-  end
-
-  test "check turn result when result is a win" do
-    game = Game.new("dog")
-    game = Game.make_guess(game, "dog")
-    game_result = Game.turn_result(game)
-    assert game_result.turn_state == :win
-  end
-
-  test "check turn result when result is a loss" do
-    game = Game.new("cat")
-
-    game =
-      Enum.reduce(1..6, game, fn _, acc ->
-        Game.make_guess(acc, "dog")
-      end)
-
-    game_result = Game.turn_result(game)
-    assert game_result.turn_state == :lose
-  end
-
-  test "check turn result when player has turns remaining" do
-    game = Game.new("cat")
-
-    game =
-      Enum.reduce(1..3, game, fn _, acc ->
-        Game.make_guess(acc, "dog")
-      end)
-
-    game_result = Game.turn_result(game)
-    assert game_result.turn_state == :continue
-  end
-
-  test "guess_valid? returns ok when a valid guess is entered" do
-    game = Game.new("frogs")
-    assert Game.guess_valid?(game, "frogs") == {:ok, "frogs"}
-  end
-
-  test "guess_valid? returns error when a guess is too long" do
-    game = Game.new("frogs")
-    assert Game.guess_valid?(game, "tadpoles") == {:error, :guess_too_long}
-  end
-
-  test "guess_valid? returns error when a guess is too short" do
-    game = Game.new("frogs")
-    assert Game.guess_valid?(game, "egg") == {:error, :guess_too_short}
-  end
-
-  test "guess_valid? returns error when a guess is not in the dictionary" do
-    game = Game.new("frogs")
-    assert Game.guess_valid?(game, "asdfg") == {:error, :invalid_guess}
+    test "returns error when a guess is not in the dictionary" do
+      game = Game.new("frogs")
+      assert Game.guess_valid?(game, "asdfg") == {:error, :invalid_guess}
+    end
   end
 
   test "filter_remainders removes incorrect letters guesses from game state" do
