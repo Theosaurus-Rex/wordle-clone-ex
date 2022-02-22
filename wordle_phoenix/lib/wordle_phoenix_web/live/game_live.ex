@@ -65,7 +65,7 @@ defmodule WordlePhoenixWeb.GameLive do
       end)
 
     ~H"""
-    <section class="bg-gray-700 w-screen h-screen">
+    <section class="bg-gray-700 w-screen .h-full">
       <div class="flex flex-col text-gray-400 items-center pt-12">
         <%= for word_guess <- Enum.reverse(@game_state.guesses) do %>
           <.row word_guess={word_guess} />
