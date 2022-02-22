@@ -59,7 +59,7 @@ defmodule Game do
     updated_guess =
       if current_guess == "",
         do: "",
-        else: String.trim_trailing(current_guess, String.at(current_guess, -1))
+        else: String.replace_suffix(current_guess, String.at(current_guess, -1), "")
 
     %Game{game | current_guess: updated_guess}
   end
