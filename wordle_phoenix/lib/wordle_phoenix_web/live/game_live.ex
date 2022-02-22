@@ -65,12 +65,15 @@ defmodule WordlePhoenixWeb.GameLive do
       end)
 
     ~H"""
-    <section class="bg-gray-700 w-screen .h-full">
+    <section class="bg-gray-700 w-screen min-h-screen">
       <div class="flex flex-col text-gray-400 items-center pt-12">
         <%= for word_guess <- Enum.reverse(@game_state.guesses) do %>
           <.row word_guess={word_guess} />
         <% end %>
-        <.row word_guess={new_guess} />
+        <%= if @game_state.turn_state == :continue do %>
+          <.row word_guess={new_guess} />
+        <% end %>
+
       </div>
 
       <Wordle.Keyboard.keyboard remaining_letters={@game_state.remaining_letters} />
@@ -85,32 +88,6 @@ defmodule WordlePhoenixWeb.GameLive do
     {:ok, assign(socket, :game_state, Game.new())}
   end
 
-  def validate_input(word_guess) do
-    if String.length(word_guess) < 5 do
-      {:error}
-    else
-      {:ok}
-    end
-  end
-
-  # TODO: Stop player from guessing if max_guesses reached OR if correct word guessed
-  def check_guesses(game, guesses) do
-    if length(guesses) >= game.max_turns do
-      {:lose}
-    else
-      {:continue}
-    end
-  end
-
-  def submit_guess(game, socket) do
-    case validate_input(game.current_guess) do
-      {:error} ->
-        {:noreply, socket}
-
-      _ ->
-        {:noreply, assign(socket, :game_state, Game.make_guess(game, game.current_guess))}
-    end
-  end
 
   def handle_event("keyboard", %{"key" => key}, socket) do
     game = socket.assigns.game_state
@@ -120,7 +97,7 @@ defmodule WordlePhoenixWeb.GameLive do
         {:noreply, assign(socket, :game_state, Game.remove_letter(game))}
 
       "Enter" ->
-        submit_guess(game, socket)
+        {:noreply, assign(socket, :game_state, Game.make_guess(game, game.current_guess))}
 
       letter when letter in @letters ->
         {:noreply, assign(socket, :game_state, Game.add_letter(game, String.downcase(letter)))}
