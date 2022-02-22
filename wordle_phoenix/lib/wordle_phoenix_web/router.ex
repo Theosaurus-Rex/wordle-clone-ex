@@ -21,6 +21,7 @@ defmodule WordlePhoenixWeb.Router do
     get("/dead-wordle", PageController, :index)
 
     live("/", GameLive)
+    live("/command", WordleLive)
   end
 
   # Other scopes may use custom stacks.
