@@ -139,7 +139,15 @@ defmodule GameTest do
         Game.new("cat")
         |> Game.make_guess("dog")
 
-      assert Enum.member?(game.guesses, incorrect: "d", incorrect: "o", incorrect: "g")
+      assert game.guesses == [[incorrect: "d", incorrect: "o", incorrect: "g"]]
+    end
+
+    test "not accepted if not enough letters" do
+      game =
+        Game.new("catch")
+        |> Game.make_guess("dog")
+
+      assert game.guesses == []
     end
 
     test "lose if maximum number of turns is reached" do

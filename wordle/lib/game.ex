@@ -126,11 +126,15 @@ defmodule Game do
   end
 
   def make_guess(game = %Game{turn_state: :continue}) do
-    {guess_result, _remainders} = Guess.guess(game.current_guess, game.secret_word)
-    updated_game = filter_remainders(game, guess_result)
+    if String.length(game.current_guess) == String.length(game.secret_word) do
+      {guess_result, _remainders} = Guess.guess(game.current_guess, game.secret_word)
+      updated_game = filter_remainders(game, guess_result)
 
-    %Game{updated_game | current_guess: "", guesses: [guess_result | game.guesses]}
-    |> turn_result()
+      %Game{updated_game | current_guess: "", guesses: [guess_result | game.guesses]}
+      |> turn_result()
+    else
+      game
+    end
   end
 
   def make_guess(game) do
