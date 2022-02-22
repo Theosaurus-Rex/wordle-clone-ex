@@ -46,7 +46,11 @@ defmodule Game do
     set_secret(game, secret_word)
   end
 
-  def add_letter(%Game{current_guess: current_guess, secret_word: secret_word} = game, letter) do
+  def add_letter(
+        %Game{current_guess: current_guess, secret_word: secret_word, turn_state: :continue} =
+          game,
+        letter
+      ) do
     updated_guess =
       if String.length(current_guess) == String.length(secret_word),
         do: game.current_guess,
@@ -55,13 +59,21 @@ defmodule Game do
     %Game{game | current_guess: updated_guess}
   end
 
-  def remove_letter(game = %Game{current_guess: current_guess}) do
+  def add_letter(game, _) do
+    game
+  end
+
+  def remove_letter(game = %Game{current_guess: current_guess, turn_state: :continue}) do
     updated_guess =
       if current_guess == "",
         do: "",
         else: String.replace_suffix(current_guess, String.at(current_guess, -1), "")
 
     %Game{game | current_guess: updated_guess}
+  end
+
+  def remove_letter(game) do
+    game
   end
 
   @doc """
@@ -113,13 +125,16 @@ defmodule Game do
     make_guess(%Game{game | current_guess: guess})
   end
 
-  @spec make_guess(%Game{}) :: %Game{}
-  def make_guess(game) do
+  def make_guess(game = %Game{turn_state: :continue}) do
     {guess_result, _remainders} = Guess.guess(game.current_guess, game.secret_word)
     updated_game = filter_remainders(game, guess_result)
 
     %Game{updated_game | current_guess: "", guesses: [guess_result | game.guesses]}
     |> turn_result()
+  end
+
+  def make_guess(game) do
+    %Game{game | current_guess: ""}
   end
 
   @doc """

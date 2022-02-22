@@ -102,6 +102,35 @@ defmodule GameTest do
 
       assert %Game{current_guess: "x"} = game
     end
+
+    test "at max turns we should not accept more letters" do
+      game =
+        Game.new("cat")
+        |> Game.make_guess("dog")
+        |> Game.make_guess("bat")
+        |> Game.make_guess("toe")
+        |> Game.make_guess("fee")
+        |> Game.make_guess("tee")
+        |> Game.make_guess("ten")
+        |> Game.add_letter("x")
+
+      assert length(game.guesses) == 6
+      assert Game.check_loss(game) == true
+      assert game.turn_state == :lose
+      assert game.current_guess == ""
+    end
+
+    test "when we've won we should not accept more letters" do
+      game =
+        Game.new("cat")
+        |> Game.make_guess("cat")
+        |> Game.add_letter("x")
+
+      assert length(game.guesses) == 1
+      assert Game.check_loss(game) == false
+      assert game.turn_state == :win
+      assert game.current_guess == ""
+    end
   end
 
   describe "make guess" do
@@ -188,6 +217,34 @@ defmodule GameTest do
     test "returns error when a guess is not in the dictionary" do
       game = Game.new("frogs")
       assert Game.guess_valid?(game, "asdfg") == {:error, :invalid_guess}
+    end
+
+    test "at max turns we should not accept more guesses" do
+      game =
+        Game.new("cat")
+        |> Game.make_guess("dog")
+        |> Game.make_guess("bat")
+        |> Game.make_guess("toe")
+        |> Game.make_guess("fee")
+        |> Game.make_guess("tee")
+        |> Game.make_guess("ten")
+        |> Game.make_guess("get")
+
+      assert length(game.guesses) == 6
+      assert Game.check_loss(game) == true
+      assert game.turn_state == :lose
+      assert game.current_guess == ""
+    end
+
+    test "when won we should not accept more guesses" do
+      game =
+        Game.new("cat")
+        |> Game.make_guess("cat")
+
+      assert length(game.guesses) == 1
+      assert Game.check_loss(game) == false
+      assert game.turn_state == :win
+      assert game.current_guess == ""
     end
   end
 
