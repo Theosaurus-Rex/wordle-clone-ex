@@ -5,9 +5,9 @@ defmodule WordlePhoenixWeb.GameLive do
   # Optionally also bring the HTML helpers
   # use Phoenix.HTML
 
-  @letters Enum.to_list(?a..?z) ++ Enum.to_list(?A..?Z)
-  |> to_string
-  |> String.split("", trim: true)
+  @letters (Enum.to_list(?a..?z) ++ Enum.to_list(?A..?Z))
+           |> to_string
+           |> String.split("", trim: true)
 
   @debug true
 
@@ -64,16 +64,17 @@ defmodule WordlePhoenixWeb.GameLive do
         letter -> {:initial, to_string([letter])}
       end)
 
+    rows =
+      Enum.reverse(assigns.game_state.guesses) ++
+        [new_guess] ++
+        for _ <- 1..5, do: for(_ <- 1..5, do: {:initial, raw("&nbsp;")})
+
     ~H"""
     <section class="bg-gray-700 w-screen min-h-screen">
       <div class="flex flex-col text-gray-400 items-center pt-12">
-        <%= for word_guess <- Enum.reverse(@game_state.guesses) do %>
+        <%= for word_guess <- Enum.take(rows, 6) do %>
           <.row word_guess={word_guess} />
         <% end %>
-        <%= if @game_state.turn_state == :continue do %>
-          <.row word_guess={new_guess} />
-        <% end %>
-
       </div>
 
       <Wordle.Keyboard.keyboard remaining_letters={@game_state.remaining_letters} />
@@ -87,7 +88,6 @@ defmodule WordlePhoenixWeb.GameLive do
   def mount(_params, _session, socket) do
     {:ok, assign(socket, :game_state, Game.new())}
   end
-
 
   def handle_event("keyboard", %{"key" => key}, socket) do
     game = socket.assigns.game_state
