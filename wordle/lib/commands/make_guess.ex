@@ -3,7 +3,18 @@ defmodule Wordle.Command.MakeGuess do
 
   defstruct []
 
+  @sample_payload %{}
+
   @impl Wordle.Command
+  def sample_payload() do
+    @sample_payload
+  end
+
+  @impl Wordle.Command
+  def execute(state = %{current_game: nil}, _) do
+    %Wordle{state | error: "no current game"}
+  end
+
   def execute(state = %{current_game: current_game}, _) do
     %Wordle{state | current_game: Game.make_guess(current_game)}
   end
