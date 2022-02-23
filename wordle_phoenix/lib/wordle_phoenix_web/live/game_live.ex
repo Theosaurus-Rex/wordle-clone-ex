@@ -13,6 +13,7 @@ defmodule WordlePhoenixWeb.GameLive do
 
   @colors %{
     initial: "bg-gray-800 text-white",
+    invalid_word: "bg-gray-800 text-red-500",
     correct: "bg-green-500 text-gray-900",
     partial: "bg-yellow-500 text-gray-900",
     incorrect: "bg-gray-900 text-white"
@@ -55,13 +56,19 @@ defmodule WordlePhoenixWeb.GameLive do
 
   @impl true
   def render(assigns) do
+    letter_type =
+      case Game.guess_valid?(assigns.game_state, assigns.game_state.current_guess) do
+        {:error, :invalid_guess} -> :invalid_word
+        _ -> :initial
+      end
+
     new_guess =
       assigns.game_state.current_guess
       |> String.pad_trailing(5)
       |> String.to_charlist()
       |> Enum.map(fn
-        32 -> {:initial, raw("&nbsp;")}
-        letter -> {:initial, to_string([letter])}
+        32 -> {letter_type, raw("&nbsp;")}
+        letter -> {letter_type, to_string([letter])}
       end)
 
     rows =
@@ -97,7 +104,13 @@ defmodule WordlePhoenixWeb.GameLive do
         {:noreply, assign(socket, :game_state, Game.remove_letter(game))}
 
       "Enter" ->
-        {:noreply, assign(socket, :game_state, Game.make_guess(game, game.current_guess))}
+        case Game.guess_valid?(game, game.current_guess) do
+          {:ok, _} ->
+            {:noreply, assign(socket, :game_state, Game.make_guess(game))}
+
+          {:error, _} ->
+            {:noreply, socket}
+        end
 
       letter when letter in @letters ->
         {:noreply, assign(socket, :game_state, Game.add_letter(game, String.downcase(letter)))}
