@@ -42,7 +42,7 @@ defmodule Wordle.Keyboard do
     <kbd
       phx-click="keyboard"
       phx-value-key={@value}
-      class={"#{color_classes} p-3 lg:p-4 rounded-md uppercase"}><%= @label %></kbd>
+      class={"#{color_classes} p-1.5 md:p-4 rounded-md uppercase"}><%= @label %></kbd>
     """
   end
 
