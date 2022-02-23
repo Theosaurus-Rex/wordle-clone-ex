@@ -10,7 +10,7 @@ defmodule WordlePhoenixWeb.GameComponent do
            |> to_string
            |> String.split("", trim: true)
 
-  @debug true
+  @debug false
 
   @colors %{
     initial: "bg-gray-800 text-white",

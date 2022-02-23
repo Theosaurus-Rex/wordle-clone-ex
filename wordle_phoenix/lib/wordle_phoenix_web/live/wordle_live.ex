@@ -20,6 +20,7 @@ defmodule WordlePhoenixWeb.WordleLive do
   use Phoenix.Component
 
   @debug false
+  @keep_current_command false
 
   @commands Behaviour.Reflection.impls(Wordle.Command)
             |> Enum.map(fn mod ->
@@ -69,35 +70,54 @@ defmodule WordlePhoenixWeb.WordleLive do
     end
   end
 
-  @impl true
   def handle_event("execute", _, socket) do
     old_state = socket.assigns.state
     cmd = @commands[socket.assigns.current_command]
     payload = Jason.decode!(socket.assigns.current_payload, keys: :atoms!)
     new_state = apply(cmd.module, :execute, [old_state, payload])
 
+    id = socket.assigns.selected_command_id
+
     {:noreply,
      socket
      |> assign(:state, new_state)
+     |> assign(:selected_command_id, if(@keep_current_command, do: id && id + 1, else: 0))
      |> assign(:history, [
        {socket.assigns.current_command, payload, new_state} | socket.assigns.history
      ])}
   end
 
-  @impl true
   def handle_event("show_command", %{"id" => id}, socket) do
     {:noreply,
      socket
      |> assign(:selected_command_id, String.to_integer(id))}
   end
 
+  def handle_event("navigate_command", %{"key" => key}, socket) do
+    id = socket.assigns.selected_command_id
+
+    new_id =
+      case key do
+        "ArrowUp" -> max(id - 1, 0)
+        "ArrowDown" -> min(id + 1, length(socket.assigns.history) - 1)
+        _ -> id
+      end
+
+    {:noreply,
+     socket
+     |> assign(:selected_command_id, new_id)}
+  end
+
+  @impl true
   def render(assigns) do
+    current_state = selected_state(assigns) || assigns.state
+    game_state = current_state.current_game || Game.new()
+
     ~H"""
     <div class="flex space-x-5">
       <section class="flex flex-col space-y-5 m-8">
         <.form let={f} for={:command_form} phx-change="validate" phx-submit="execute" class="flex flex-col space-y-2">
           <%= select f, :command, @command_options,
-                prompt: "Select Command",
                 selected: @current_command,
                 class: "block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" %>
           <%= error_tag f, :command %>
@@ -107,28 +127,32 @@ defmodule WordlePhoenixWeb.WordleLive do
                 class: "block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" %>
           <%= error_tag f, :payload %>
 
-          <%= submit "Execute", class: "w-[20%] bg-blue-800 px-3 py-2 rounded-md text-white" %>
+          <%= submit "Execute", class: "bg-blue-800 px-3 py-2 rounded-md text-white" %>
         </.form>
       </section>
+
       <.command_history history={@history} selected_command_id={@selected_command_id} />
 
-      <.live_component module={WordlePhoenixWeb.GameComponent} id="game" game_state={@state.current_game || Game.new()} />
+      <.live_component module={WordlePhoenixWeb.GameComponent} id="game" game_state={game_state} />
     </div>
     <.debug {assigns} />
     """
   end
 
-  def command_history(assigns) do
+  def selected_state(assigns) do
     id = assigns.selected_command_id
 
-    current_state =
-      if id do
-        {_, _, state} = Enum.fetch!(assigns.history, id)
-        state
-      end
+    if id do
+      {_, _, state} = Enum.fetch!(assigns.history, id)
+      state
+    end
+  end
+
+  def command_history(assigns) do
+    current_state = selected_state(assigns)
 
     ~H"""
-    <div class="flex flex-row space-x-5">
+    <div phx-window-keyup="navigate_command" class="flex flex-row space-x-5">
       <ul role="list" class=" divide-y divide-gray-200">
         <%= Enum.with_index(@history, fn {command_name, payload, state}, index -> %>
           <.command id={index} name={command_name} payload={payload} selected={index == @selected_command_id} />
@@ -147,7 +171,7 @@ defmodule WordlePhoenixWeb.WordleLive do
       <div class="flex space-x-3">
         <div class="flex-1 space-y-1">
           <div class="flex items-center justify-between">
-            <h3 class="text-sm font-medium"><%= @id %>: <%= @name %></h3>
+            <h3 class="text-sm font-medium"><%= @name %></h3>
             <pre class="whitespace-normal"><code class="text-sm text-gray-500">
               <%= Jason.encode!(@payload) %>
             </code></pre>

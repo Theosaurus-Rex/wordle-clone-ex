@@ -12,7 +12,7 @@ defmodule Wordle.Keyboard do
 
   def keyboard(assigns) do
     ~H"""
-    <div phx-keyup="keyboard" class="flex flex-col items-center mt-24">
+    <div phx-keyup="keyboard" class="flex flex-col items-center space-y-7 lg:space-y-10 mt-24">
       <.row remaining_letters={@remaining_letters} key_values={letters_to_key_values("qwertyuiop")} />
       <.row remaining_letters={@remaining_letters} key_values={letters_to_key_values("asdfghjkl")} />
       <.row remaining_letters={@remaining_letters} key_values={[{"Backspace", "Back"}] ++ letters_to_key_values("zxcvbnm") ++ [{"Enter", "Enter"}]} />
@@ -22,7 +22,7 @@ defmodule Wordle.Keyboard do
 
   def row(assigns) do
     ~H"""
-    <div class="m-5">
+    <div class="">
       <%= for {value, label} <- @key_values do %>
         <.key value={value} label={label} remaining_letters={@remaining_letters} />
       <% end %>
@@ -42,7 +42,7 @@ defmodule Wordle.Keyboard do
     <kbd
       phx-click="keyboard"
       phx-value-key={@value}
-      class={"#{color_classes} p-4 rounded-md uppercase"}><%= @label %></kbd>
+      class={"#{color_classes} p-3 lg:p-4 rounded-md uppercase"}><%= @label %></kbd>
     """
   end
 
