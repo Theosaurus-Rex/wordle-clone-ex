@@ -12,7 +12,7 @@ defmodule Wordle.Keyboard do
 
   def keyboard(assigns) do
     ~H"""
-    <div phx-window-keyup="keyboard" class="flex flex-col items-center mt-24">
+    <div phx-keyup="keyboard" class="flex flex-col items-center mt-24">
       <.row remaining_letters={@remaining_letters} key_values={letters_to_key_values("qwertyuiop")} />
       <.row remaining_letters={@remaining_letters} key_values={letters_to_key_values("asdfghjkl")} />
       <.row remaining_letters={@remaining_letters} key_values={[{"Backspace", "Back"}] ++ letters_to_key_values("zxcvbnm") ++ [{"Enter", "Enter"}]} />

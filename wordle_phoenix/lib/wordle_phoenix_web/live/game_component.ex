@@ -1,5 +1,6 @@
-defmodule WordlePhoenixWeb.GameLive do
-  use WordlePhoenixWeb, :live_view
+defmodule WordlePhoenixWeb.GameComponent do
+  use WordlePhoenixWeb, :live_component
+
   use Phoenix.Component
 
   # Optionally also bring the HTML helpers
