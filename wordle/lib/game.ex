@@ -10,7 +10,8 @@ defmodule Game do
             guesses: [],
             remaining_letters: Enum.map(Enum.to_list(?a..?z), fn n -> <<n>> end),
             turn_state: :continue,
-            current_guess: ""
+            current_guess: "",
+            keyboard: nil
 
   @type guess_result :: :correct | :incorrect | :partial
   @type letter_guess_result :: {guess_result, binary}
@@ -203,4 +204,48 @@ defmodule Game do
 
     %Game{game | remaining_letters: updated_remainders}
   end
+
+  # Keyboard colour function:
+  def key_status(game) do
+    # Get all guesses from game state
+    # Compile into a flattened list of key/value pairs and remove duplicates
+    guesses = List.flatten(game.guesses)
+    # Retrieve a list of keyboard letters all set with the :initial key
+    keyboard = Enum.map(Enum.to_list(?a..?z), fn n -> <<n>> end)
+
+    keyboard =
+      for letter <- keyboard do
+        {:initial, letter}
+      end
+
+    # Remove partials when they have a correct version with same letter
+    guesses = Enum.reduce(guesses, [], fn {status, letter}, acc ->
+      if Enum.member?(guesses, {:partial, letter}) && Enum.member?(guesses, {:correct, letter}) do
+        [{:correct, letter} | acc]
+      else
+        [{status, letter} | acc]
+      end
+    end)
+
+    # Set all correct letter keys to :correct in keyboard colours
+    keyboard = Enum.reduce(keyboard, [], fn {status, letter}, acc ->
+      cond do
+        Enum.member?(guesses, {:correct, letter}) ->
+          [{:correct, letter} | acc]
+        Enum.member?(guesses, {:partial, letter}) ->
+          [{:partial, letter} | acc]
+        Enum.member?(guesses, {:incorrect, letter}) ->
+          [{:incorrect, letter} | acc]
+        true -> [{status, letter} | acc]
+      end
+      |> Enum.reverse()
+    end)
+    %Game{game | keyboard: keyboard}
+  end
+
+
+
+
+  # Set all partial letter keys to :partial in keyboard colours
+  # Set all incorrect letter keys to :incorrect in keyboard colours
 end
