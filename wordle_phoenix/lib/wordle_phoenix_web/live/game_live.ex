@@ -71,7 +71,7 @@ defmodule WordlePhoenixWeb.GameLive do
         for _ <- 1..5, do: for(_ <- 1..5, do: {:initial, raw("&nbsp;")})
 
     ~H"""
-    <section class="bg-gray-700 w-full min-h-screen">
+    <section phx-window-keyup="keyboard" class="bg-gray-700 w-screen min-h-screen">
       <div class="flex flex-col text-gray-400 items-center pt-12">
         <%= for word_guess <- Enum.take(rows, 6) do %>
           <.row word_guess={word_guess} />
