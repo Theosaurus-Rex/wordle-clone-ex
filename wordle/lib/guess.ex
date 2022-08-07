@@ -32,6 +32,10 @@ defmodule Guess do
     |> Enum.map(fn letter -> {:incorrect, letter} end)
   end
 
+  @doc """
+    The first pass a guess goes through, where any letters that are guessed in the correct position will be marked as correct letter guesses. Additionally, it stores any remaining letters that are yet to be guessed correctly.
+  """
+
   @spec correct_pass(binary, binary) :: {list, any}
   def correct_pass(player_guess, secret_letters) do
     secret_letter_charlist = String.to_charlist(secret_letters)
@@ -48,6 +52,10 @@ defmodule Guess do
     {Enum.reverse(result), remainders}
   end
 
+  @doc """
+    Compares a letter from the guess word with a letter from the correct answer in the corresponding position. In the case that a letter has been guessed correctly, it is removed from the pool of remaining letters to be guessed.
+  """
+
   @spec compare_letter(binary, binary, list, list) :: {list, list}
   def compare_letter(letter, letter, result, remaining_letters) do
     {[{:correct, to_string([letter])} | result], remaining_letters -- [letter]}
@@ -56,6 +64,10 @@ defmodule Guess do
   def compare_letter(guess_letter, _, result, remaining_letters) do
     {[{:incorrect, to_string([guess_letter])} | result], remaining_letters}
   end
+
+  @doc """
+    Guess information is passed to `partial_pass` after first having any correct letter guesses confirmed. This method loops through letters remaining after the confirmation of correct letters and calls the `partial_match` function on them.
+  """
 
   @spec partial_pass({list, list}, binary) :: {list, list}
   def partial_pass({letter_state, remainders}, player_guess) do
@@ -70,6 +82,10 @@ defmodule Guess do
 
     {Enum.reverse(result), remainders}
   end
+
+  @doc """
+    Checks if a guess letter is contained in the correct answer despite being in the wrong position. If this is the case, it will be assigned as `:partial`, otherwise, it will be assigned as `:incorrect`.
+  """
 
   @spec partial_match(any, any, any, any) :: {nonempty_maybe_improper_list, any}
   defp partial_match(guess_letter, :correct, remainders, result) do
