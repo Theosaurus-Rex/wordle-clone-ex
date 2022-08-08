@@ -46,6 +46,9 @@ defmodule Game do
     set_secret(game, secret_word)
   end
 
+  @doc """
+    Handles the adding of a new letter to the current guess. If the max length is reached once a new letter is added, it passes the guess to another function for assessing correctness.
+  """
   def add_letter(
         %Game{current_guess: current_guess, secret_word: secret_word, turn_state: :continue} =
           game,
@@ -63,6 +66,9 @@ defmodule Game do
     game
   end
 
+  @doc """
+    Allows users to remove the last letter from their guess in the case of a mistake.
+  """
   def remove_letter(game = %Game{current_guess: current_guess, turn_state: :continue}) do
     updated_guess =
       if current_guess == "",
@@ -101,6 +107,10 @@ defmodule Game do
     %Game{game | secret_word: secret}
   end
 
+  @doc """
+    Checks to make sure that the player guess is valid. The guess will be considered invalid in cases where the number of characters does not match the number of characters in the answer, or in cases where the guess is not found in the internal dictionary module.
+  """
+
   @spec guess_valid?(atom | %{:secret_word => binary, optional(any) => any}, binary) ::
           {:error, :guess_too_long | :guess_too_short | :invalid_guess} | {:ok, binary}
   def guess_valid?(game, guess) do
@@ -119,6 +129,10 @@ defmodule Game do
         end
     end
   end
+
+  @doc """
+    Passes the current player guess to the game state. Then, updates the game state, appending the guess passed to the list of existing player guesses.
+  """
 
   @spec make_guess(%Game{}, binary) :: %Game{}
   def make_guess(game, guess) do
@@ -172,6 +186,9 @@ defmodule Game do
     end
   end
 
+  @doc """
+    Checks to see if the player's most recent guess correctly matches the secret word.
+  """
   @spec correct_guess(atom | %{:guesses => nonempty_maybe_improper_list, optional(any) => any}) ::
           boolean
   def correct_guess(game) do
@@ -179,11 +196,17 @@ defmodule Game do
     Enum.all?(last_guess, fn {result, _letter} -> result == :correct end)
   end
 
+  @doc """
+    Checks to see whether a player has used up all of their guesses, the number of which are set in the game state. If they have, and they have not guessed correctly, they lose the game.
+  """
   @spec check_loss(atom | %{:guesses => list, :max_turns => any, optional(any) => any}) :: boolean
   def check_loss(game) do
     length(game.guesses) == game.max_turns
   end
 
+  @doc """
+    Filters out incorrect letter guesses from letters remaining once correct letter guesses have already been confirmed.
+  """
   def filter_remainders(game, guess_letters) do
     updated_remainders =
       Enum.reduce(guess_letters, game.remaining_letters, fn {status, letter}, acc ->
