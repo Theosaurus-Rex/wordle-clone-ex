@@ -1,4 +1,7 @@
 defmodule Dictionary do
+  @moduledoc """
+    This module handles all funcionality to do with the database of words that the game can use.
+  """
   @spec validate_guess(any) :: boolean
   def validate_guess(guess) do
     dictionary = guess_dictionary() ++ secret_dictionary()
