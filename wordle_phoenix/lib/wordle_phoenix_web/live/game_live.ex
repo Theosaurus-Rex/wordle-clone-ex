@@ -72,6 +72,12 @@ defmodule WordlePhoenixWeb.GameLive do
 
     ~H"""
     <section phx-window-keyup="keyboard" class="bg-gray-700 w-screen min-h-screen">
+      <%= if @game_state.turn_state == :win do %>
+      <h1>YOU WIN</h1>
+      <% end %>
+      <%= if @game_state.turn_state == :lose do %>
+      <h1>YOU LOSE</h1>
+      <% end %>
       <div class="flex flex-col text-gray-400 items-center pt-12">
         <%= for word_guess <- Enum.take(rows, 6) do %>
           <.row word_guess={word_guess} />
