@@ -71,12 +71,16 @@ defmodule WordlePhoenixWeb.GameLive do
         for _ <- 1..5, do: for(_ <- 1..5, do: {:initial, raw("&nbsp;")})
 
     ~H"""
-    <section phx-window-keyup="keyboard" class="bg-gray-700 w-screen min-h-screen">
+    <section phx-window-keyup="keyboard" class="bg-gray-700 w-screen min-h-screen flex flex-col items-center">
       <%= if @game_state.turn_state == :win do %>
-      <h1>YOU WIN</h1>
+      <div class="p-10 bg-green-300 rounded-md w-96">
+        <p class="text-green-600 font-bold text-xl text-center">Congrats, you win!</p>
+      </div>
       <% end %>
       <%= if @game_state.turn_state == :lose do %>
-      <h1>YOU LOSE</h1>
+      <div class="p-10 bg-red-300 rounded-md w-96">
+        <p class="text-red-600 font-bold text-xl text-center">Sorry, you lost! The secret word was "<%= @game_state.secret_word %>"</p>
+      </div>
       <% end %>
       <div class="flex flex-col text-gray-400 items-center pt-12">
         <%= for word_guess <- Enum.take(rows, 6) do %>
