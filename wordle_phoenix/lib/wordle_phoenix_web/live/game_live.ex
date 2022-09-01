@@ -2,9 +2,6 @@ defmodule WordlePhoenixWeb.GameLive do
   use WordlePhoenixWeb, :live_view
   use Phoenix.Component
 
-  # Optionally also bring the HTML helpers
-  # use Phoenix.HTML
-
   @letters (Enum.to_list(?a..?z) ++ Enum.to_list(?A..?Z))
            |> to_string
            |> String.split("", trim: true)
@@ -90,7 +87,6 @@ defmodule WordlePhoenixWeb.GameLive do
 
       <Wordle.Keyboard.keyboard remaining_letters={@game_state.remaining_letters} />
 
-      <.game_state game_state={@game_state} />
     </section>
     """
   end
@@ -111,22 +107,5 @@ defmodule WordlePhoenixWeb.GameLive do
     ~H"""
     <kbd class={"rounded-md px-5 py-4 border border-slate-700 uppercase #{color_classes}"}><%= letter %></kbd>
     """
-  end
-
-  def game_state(assigns) do
-    if @debug do
-      ~H"""
-      <div class="flex flex-col items-center pt-12">
-        <div class="prose">
-          <pre><code>
-            <%= Code.format_string!(inspect(@game_state)) %>
-          </code></pre>
-        </div>
-      </div>
-      """
-    else
-      ~H"""
-      """
-    end
   end
 end
